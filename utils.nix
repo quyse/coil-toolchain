@@ -41,4 +41,31 @@ rec {
           "-include ${libcxxForceGlibcVersionHeader}";
       });
     });
+
+  # easy-to-use stdenv adapter for all sorts of compatibility
+  stdenvForceCompatibility = { pkgs, reqs }: stdenv: let
+    minDep = dep: version: deps: let
+      curVersion = deps.${dep} or null;
+      in if curVersion == null || builtins.compareVersions version curVersion < 0
+        then deps // {
+          ${dep} = version;
+        }
+        else deps;
+    minGlibc = minDep "glibc";
+    f = req: {
+      "ubuntu-12.04" = minGlibc "2.15";
+      "ubuntu-14.04" = minGlibc "2.19";
+      "ubuntu-16.04" = minGlibc "2.23";
+      "ubuntu-18.04" = minGlibc "2.27";
+    }.${req} or (abort "unknown compatibility requirement: ${req}");
+    deps = pkgs.lib.foldr f {} reqs;
+    glibcReq = deps.glibc or null;
+    glibcAdapter = stdenvForceGlibcVersion {
+      inherit pkgs;
+      arch = if stdenv.hostPlatform.isx86_64 then "x64" else "x86";
+      version = glibcReq;
+    };
+    adapters =
+      pkgs.lib.optional (stdenv.hostPlatform.libc == "glibc" && stdenv.hostPlatform.isx86 && glibcReq != null) glibcAdapter;
+  in pkgs.lib.pipe stdenv adapters;
 }
