@@ -1,6 +1,5 @@
-{ pkgs }:
 rec {
-  llvm11 = import ./llvm11.nix { inherit pkgs; };
+  llvm11 = import ./llvm11.nix;
 
   llvm = llvm11;
 

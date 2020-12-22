@@ -1,4 +1,6 @@
-{ pkgs }:
+{ pkgs
+, hostStdenvAdapter ? pkgs.lib.id
+}:
 let
   utils = import ./utils.nix;
 in rec {
@@ -45,7 +47,12 @@ in rec {
       stdenvNoCC = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenvNoCC;
     });
   }).tools;
-  hostStdenv = pkgs.stdenvAdapters.propagateBuildInputs (utils.stdenvPlatformFixes (utils.stdenvHostUseLLVM (pkgs.overrideCC pkgs.stdenv buildTools.lldClang)));
+  hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.lldClang) [
+    utils.stdenvHostUseLLVM
+    utils.stdenvPlatformFixes
+    pkgs.stdenvAdapters.propagateBuildInputs
+    hostStdenvAdapter
+  ];
   buildStdenv = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenv;
   stdenv = hostStdenv;
 }
