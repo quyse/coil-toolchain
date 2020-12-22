@@ -18,6 +18,7 @@ in rec {
         "-DLIBCXX_HERMETIC_STATIC_LIBRARY=ON"
       ];
       NIX_CFLAGS_COMPILE = if self.stdenv.hostPlatform.isWindows then "-D_WIN32_WINNT=0x0600" else null;
+      patches = (attrs.patches or []) ++ [./libcxx11.patch];
     });
     libcxxabi = super.libcxxabi.overrideAttrs (attrs: {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
