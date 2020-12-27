@@ -3,6 +3,13 @@
 }:
 let
   utils = import ./utils.nix;
+
+  patchMingwLibc = libc: if libc.pname == "mingw-w64"
+    then libc.overrideAttrs (attrs: {
+      patches = (attrs.patches or []) ++ [./libs/mingw-w64/intrin.patch];
+    })
+    else libc;
+
 in rec {
   patchTools = tools: tools.extend (self: super: {
     clang-unwrapped = super.clang-unwrapped.overrideAttrs (attrs: {
@@ -37,16 +44,26 @@ in rec {
       NIX_CFLAGS_COMPILE = if self.stdenv.hostPlatform.isWindows then "-D__STDC_FORMAT_MACROS=1 -D_WIN32_WINNT=0x0600" else null;
     });
   });
+
   buildTools = patchTools (pkgs.buildPackages.llvmPackages_11.override {
     stdenv = buildStdenv;
     targetLlvmLibraries = hostLibraries;
     wrapCCWith = args: pkgs.buildPackages.wrapCCWith (args // {
       stdenvNoCC = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenvNoCC;
     });
-    wrapBintoolsWith = args: pkgs.buildPackages.wrapBintoolsWith (args // {
-      stdenvNoCC = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenvNoCC;
-    });
+    wrapBintoolsWith =
+      { libc ?
+        if pkgs.buildPackages.stdenv.targetPlatform != pkgs.buildPackages.stdenv.hostPlatform
+          then patchMingwLibc pkgs.buildPackages.libcCross
+          else pkgs.buildPackages.stdenv.cc.libc
+      , ...
+      } @ args:
+      pkgs.buildPackages.wrapBintoolsWith (args // {
+        stdenvNoCC = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenvNoCC;
+        inherit libc;
+      });
   }).tools;
+
   hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.lldClang) [
     utils.stdenvHostUseLLVM
     utils.stdenvPlatformFixes
