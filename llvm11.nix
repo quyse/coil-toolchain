@@ -6,7 +6,7 @@ let
 in rec {
   patchTools = tools: tools.extend (self: super: {
     clang-unwrapped = super.clang-unwrapped.overrideAttrs (attrs: {
-      patches = (attrs.patches or []) ++ [./clang11.patch];
+      patches = (attrs.patches or []) ++ [./libs/clang11/static-libunwind.patch];
     });
   });
 
@@ -20,7 +20,7 @@ in rec {
         "-DLIBCXX_HERMETIC_STATIC_LIBRARY=ON"
       ];
       NIX_CFLAGS_COMPILE = if self.stdenv.hostPlatform.isWindows then "-D_WIN32_WINNT=0x0600" else null;
-      patches = (attrs.patches or []) ++ [./libcxx11.patch];
+      patches = (attrs.patches or []) ++ [./libs/libcxx11/override-glibc-prereq.patch];
     });
     libcxxabi = super.libcxxabi.overrideAttrs (attrs: {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
