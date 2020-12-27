@@ -7,11 +7,7 @@ in rec {
   overlay = self: super: {
     # separate to not affect the rest of nixpkgs
     coil = rec {
-      zlib = super.zlib.override (overrides // {
-        shared = false;
-        static = true;
-        splitStaticOutput = false;
-      });
+      zlib = self.callPackage ./libs/zlib-ng overrides;
 
       boost = super.boost.override (overrides // {
         enableShared = false;
