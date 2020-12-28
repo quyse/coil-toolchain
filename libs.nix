@@ -9,11 +9,18 @@ in rec {
     coil = rec {
       zlib = self.callPackage ./libs/zlib-ng overrides;
 
-      boost = super.boost.override (overrides // {
+      boost = (super.boost17x.override (overrides // {
         enableShared = false;
         enableStatic = true;
         toolset = null;
         inherit zlib;
+      })).overrideAttrs (attrs: {
+        patches = (attrs.patches or [])
+          ++ stdenv.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [./libs/boost/cross.patch]
+          ++ stdenv.lib.optionals (builtins.compareVersions attrs.version "1.75" < 0) [./libs/boost/libcxx.patch]
+        ;
+        # disarm strange RANLIB line
+        postFixup = builtins.replaceStrings ["$RANLIB"] ["true"] (attrs.postFixup or "");
       });
     };
   };
