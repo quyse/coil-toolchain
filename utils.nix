@@ -14,7 +14,9 @@ rec {
     stdenv.overrideDerivation (s: s // {
       mkDerivation = args: s.mkDerivation (args // {
         hardeningDisable = if s.hostPlatform.isWindows then ["all"] else args.hardeningDisable or [];
-      });
+      } // (if s.hostPlatform.isWindows && s.hostPlatform.useLLVM then {
+        RC = "${stdenv.cc.bintools.targetPrefix}llvm-rc";
+      } else {}));
     });
 
   unNixElf = {
