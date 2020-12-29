@@ -11,12 +11,6 @@ let
     else libc;
 
 in rec {
-  patchTools = tools: tools.extend (self: super: {
-    clang-unwrapped = super.clang-unwrapped.overrideAttrs (attrs: {
-      patches = (attrs.patches or []) ++ [./libs/clang11/static-libunwind.patch];
-    });
-  });
-
   hostLibraries = (pkgs.llvmPackages_11.override {
     stdenv = hostStdenv;
     buildLlvmTools = buildTools;
@@ -45,7 +39,7 @@ in rec {
     });
   });
 
-  buildTools = patchTools (pkgs.buildPackages.llvmPackages_11.override {
+  buildTools = (pkgs.buildPackages.llvmPackages_11.override {
     stdenv = buildStdenv;
     targetLlvmLibraries = hostLibraries;
     wrapCCWith = args: pkgs.buildPackages.wrapCCWith (args // {
@@ -62,7 +56,11 @@ in rec {
         stdenvNoCC = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenvNoCC;
         inherit libc;
       });
-  }).tools;
+  }).tools.extend (self: super: {
+    clang-unwrapped = super.clang-unwrapped.overrideAttrs (attrs: {
+      patches = (attrs.patches or []) ++ [./libs/clang11/static-libunwind.patch];
+    });
+  });
 
   hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.lldClang) [
     utils.stdenvHostUseLLVM
