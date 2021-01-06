@@ -6,4 +6,6 @@ rec {
   libs = import ./libs.nix;
 
   utils = import ./utils.nix;
+
+  windows = import ./platforms/windows;
 }
