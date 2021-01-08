@@ -5,25 +5,65 @@ rec {
     { name ? "packer-disk"
     , disk ? null # set to the previous step, null for initial step
     , provisioners ? packerInitialProvisioners
-    , extraMount ? null
+    , extraMount ? null # path to mount (actually copy) into VM as drive D:
+    , extraMountIn ? true # whether to copy data into VM
+    , extraMountOut ? true # whether to copy data out of VM
+    , extraMountSize ? "32G"
     , beforeScript ? ""
     , afterScript ? "mv build/packer-qemu $out"
     , outputHash ? null
     , outputHashAlgo ? "sha256"
     , outputHashMode ? "flat"
     }: let
-      script = ''
-        ${beforeScript}
-        PATH=${pkgs.qemu_kvm}/bin:$PATH ${pkgs.buildPackages.packer}/bin/packer build --var cpus=$NIX_BUILD_CORES ${packerTemplateJson {
-          name = "${name}.template.json";
-          inherit disk provisioners extraMount;
-        }}
-        ${afterScript}
-      '';
-      env = if outputHash != null then {
-        inherit outputHash outputHashAlgo outputHashMode;
-      } else {};
-    in pkgs.runCommand name env script;
+    guestfishCmd = ''
+      ${pkgs.libguestfs-with-appliance}/bin/guestfish \
+        disk-create extraMount.img qcow2 ${extraMountSize} : \
+        add extraMount.img format:qcow2 label:extraMount : \
+        run : \
+        part-disk /dev/disk/guestfs/extraMount mbr : \
+        part-set-mbr-id /dev/disk/guestfs/extraMount 1 07 : \
+        mkfs ntfs /dev/disk/guestfs/extraMount1'';
+    script = ''
+      echo 'Executing beforeScript...'
+      ${beforeScript}
+      ${pkgs.lib.optionalString (extraMount != null) (
+        if extraMountIn then ''
+          echo 'Copying extra mount data in...'
+          tar -C ${extraMount} -c --dereference . | ${guestfishCmd} : \
+            mount /dev/disk/guestfs/extraMount1 / : \
+            tar-in - /
+          rm -r ${extraMount}
+        '' else ''
+          echo 'Creating extra mount...'
+          ${guestfishCmd}
+        ''
+      )}
+      echo 'Starting VM...'
+      PATH=${pkgs.qemu_kvm}/bin:$PATH ${pkgs.buildPackages.packer}/bin/packer build --var cpus=$NIX_BUILD_CORES ${packerTemplateJson {
+        name = "${name}.template.json";
+        inherit disk provisioners;
+        extraDisk = if extraMount != null then "extraMount.img" else null;
+      }}
+      ${pkgs.lib.optionalString (extraMount != null) ''
+        ${pkgs.lib.optionalString extraMountOut ''
+          echo 'Copying extra mount data out...'
+          mkdir ${extraMount}
+          ${pkgs.libguestfs-with-appliance}/bin/guestfish \
+            add extraMount.img format:qcow2 label:extraMount readonly:true : \
+            run : \
+            mount-ro /dev/disk/guestfs/extraMount1 / : \
+            tar-out / - | tar -C ${extraMount} -xf -
+        ''}
+        echo 'Clearing extra mount...'
+        rm extraMount.img
+      ''}
+      echo 'Executing afterScript...'
+      ${afterScript}
+    '';
+    env = if outputHash != null then {
+      inherit outputHash outputHashAlgo outputHashMode;
+    } else {};
+  in pkgs.runCommand name env script;
 
   initialDisk = runPackerStep {};
 
@@ -35,7 +75,7 @@ rec {
     , iso ? bentoWindowsIso
     , output_directory ? "build"
     , provisioners
-    , extraMount ? null
+    , extraDisk ? null
     , headless ? true
     }: pkgs.writeText name (builtins.toJSON {
       builders = [(
@@ -65,8 +105,8 @@ rec {
             [ "-drive" "file=${virtio_win_iso},media=cdrom,index=2" ]
           ] else []) ++
           # extra hdd
-          (if extraMount != null then [
-            [ "-drive" "file=fat:rw:${extraMount},if=virtio,format=vvfat,index=3" ]
+          (if extraDisk != null then [
+            [ "-drive" "file=${extraDisk},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=3" ]
           ] else []);
         }
         // (if disk != null then {
@@ -82,7 +122,7 @@ rec {
         } else {})
       )];
       provisioners =
-        (if extraMount != null then [
+        (if extraDisk != null then [
           {
             type = "powershell";
             inline = [
