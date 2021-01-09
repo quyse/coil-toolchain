@@ -61,16 +61,18 @@ rec {
         # list of dependencies (package manifests)
         dependencies = pkgs.lib.mapAttrsToList depManifest (pkgs.lib.filterAttrs (_dep: depPred) (packageVariant.dependencies or {}));
         layoutScript = let
-          dir = pkgs.lib.escapeShellArg id;
+          dir = id;
           sanitizeFileName = builtins.replaceStrings ["\\"] ["/"];
-          directories = pkgs.lib.sort (a: b: a < b) (pkgs.lib.unique (pkgs.lib.mapAttrsToList (fileName: _payload:
-            builtins.concatStringsSep "/" (pkgs.lib.init (pkgs.lib.splitString "/" (sanitizeFileName fileName)))
-          ) payloads));
-          directoriesStr = builtins.concatStringsSep " " (map (directory: "${dir}/${pkgs.lib.escapeShellArg directory}") directories);
+          directories = pkgs.lib.sort (a: b: a < b) (pkgs.lib.unique (
+            pkgs.lib.mapAttrsToList (fileName: _payload:
+              dirOf "${dir}/${sanitizeFileName fileName}"
+            ) payloads
+          ));
+          directoriesStr = builtins.concatStringsSep " " (map (directory: pkgs.lib.escapeShellArg directory) directories);
         in ''
           ${if directoriesStr != "" then "mkdir -p ${directoriesStr}" else ""}
           ${builtins.concatStringsSep "" (pkgs.lib.mapAttrsToList (fileName: payload: ''
-            ln -s ${payload} ${dir}/${pkgs.lib.escapeShellArg (sanitizeFileName fileName)}
+            ln -s ${payload} ${pkgs.lib.escapeShellArg "${dir}/${sanitizeFileName fileName}"}
           '') payloads)}
         '';
       };
