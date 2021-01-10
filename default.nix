@@ -7,7 +7,9 @@ rec {
 
   utils = import ./utils.nix;
 
-  windows = import ./platforms/windows;
+  windows = { ... }@args: import ./platforms/windows ({
+    inherit fixeds;
+  } // args);
 
   fixeds = import ./fixeds.nix;
 }

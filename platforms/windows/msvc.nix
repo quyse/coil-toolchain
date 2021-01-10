@@ -1,6 +1,6 @@
 { pkgs
 , windows
-, fixeds ? import ../../fixeds.nix
+, fixeds
 }:
 
 rec {

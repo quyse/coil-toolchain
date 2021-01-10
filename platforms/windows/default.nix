@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {}
-, fixeds ? import ../../fixeds.nix
-}:
+, fixeds
+}: let
 
-rec {
+windows = rec {
   runPackerStep =
     { name ? "packer-disk"
     , disk ? null # set to the previous step, null for initial step
@@ -250,4 +250,9 @@ rec {
   virtio_win_iso = pkgs.fetchurl {
     inherit (fixeds.fetchurl."https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso") url sha256 name;
   };
-}
+
+  msvc = import ./msvc.nix {
+    inherit pkgs windows fixeds;
+  };
+};
+in windows
