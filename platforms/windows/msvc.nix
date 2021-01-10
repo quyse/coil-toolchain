@@ -40,10 +40,12 @@ rec {
       packageVariants = builtins.filter packageVariantPred package;
       name = "${packageId}-${arch}-${language}${if includeRecommended then "-rec" else ""}${if includeOptional then "-opt" else ""}";
       packageVariantManifest = packageVariant: let
-        payloadManifest = payload: pkgs.lib.nameValuePair
-          (if packageVariant.type == "Vsix" then "payload.vsix" else payload.fileName)
+        payloadManifest = payload: let
+          fileName = builtins.replaceStrings ["\\"] ["/"] payload.fileName;
+        in pkgs.lib.nameValuePair
+          (if packageVariant.type == "Vsix" then "payload.vsix" else fileName)
           (pkgs.fetchurl {
-            name = pkgs.lib.strings.sanitizeDerivationName payload.fileName;
+            name = pkgs.lib.strings.sanitizeDerivationName fileName;
             inherit (payload) url sha256;
           });
         depPred = depDesc:
@@ -68,17 +70,16 @@ rec {
         dependencies = pkgs.lib.mapAttrsToList depManifest (pkgs.lib.filterAttrs (_dep: depPred) (packageVariant.dependencies or {}));
         layoutScript = let
           dir = id;
-          sanitizeFileName = builtins.replaceStrings ["\\"] ["/"];
           directories = pkgs.lib.sort (a: b: a < b) (pkgs.lib.unique (
             pkgs.lib.mapAttrsToList (fileName: _payload:
-              dirOf "${dir}/${sanitizeFileName fileName}"
+              dirOf "${dir}/${fileName}"
             ) payloads
           ));
           directoriesStr = builtins.concatStringsSep " " (map (directory: pkgs.lib.escapeShellArg directory) directories);
         in ''
           ${if directoriesStr != "" then "mkdir -p ${directoriesStr}" else ""}
           ${builtins.concatStringsSep "" (pkgs.lib.mapAttrsToList (fileName: payload: ''
-            ln -s ${payload} ${pkgs.lib.escapeShellArg "${dir}/${sanitizeFileName fileName}"}
+            ln -s ${payload} ${pkgs.lib.escapeShellArg "${dir}/${fileName}"}
           '') payloads)}
         '';
       };
