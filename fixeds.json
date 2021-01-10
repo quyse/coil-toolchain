@@ -1,0 +1,65 @@
+{
+  "fetchgit": {
+    "https://github.com/chef/bento.git": {
+      "rev": "5f25d32bde9f5d73e9a45355e1370b7bbc120d19",
+      "sha256": "0cam1f4mdsq5jgwjm8szc0grvg0l2fvygnw4ximmlgpfzxq5b14n",
+      "url": "https://github.com/chef/bento.git"
+    }
+  },
+  "fetchurl": {
+    "https://aka.ms/vs/15/release/channel": {
+      "etag": "\"a59396a087c7d61:0\"",
+      "name": "VisualStudio.15.Release.chman",
+      "sha256": "0qcnnh6xpcaswn1n33n71d9yv69axv0pkg5md9ix88vj3dwfjx45",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/b8d403d9-01a4-45a0-9229-db5572fd5e4e/80e8d47f7bc5e21d4b2582bafa2c1a31299d1271b9a28f551f517053b63bcbe5/VisualStudio.15.Release.chman"
+    },
+    "https://aka.ms/vs/15/release/installer": {
+      "etag": "\"ccc315a1cc7cd61:0\"",
+      "name": "vs_installer.opc",
+      "sha256": "0fdr493grm3mdkfiqg417axn6r33858ynfa61k2qxalp81xdlhyn",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/b8d403d9-01a4-45a0-9229-db5572fd5e4e/D643DA7A4097AA8EC50C4639EB5141636463BB3A813C1CDD6C75D4FC4622B939/vs_installer.opc"
+    },
+    "https://aka.ms/vs/15/release/vs_buildtools.exe": {
+      "etag": "\"041c46f86c7d61:0\"",
+      "name": "vs_BuildTools.exe",
+      "sha256": "0d4zj5y6rqxybbzckmpddzzxhqhrmp7x52lx0rnzqpbh16p00xlr",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/b8d403d9-01a4-45a0-9229-db5572fd5e4e/997600ae09705dfc6d069d8ad2cfad1962d8ff6fedd6c9fe5abee36c7c919f34/vs_BuildTools.exe"
+    },
+    "https://aka.ms/vs/16/release/channel": {
+      "etag": "\"42c459c795cad61:0\"",
+      "name": "VisualStudio.16.Release.chman",
+      "sha256": "0iw7lzjl4rk7kzdl00jwkqf8ilxgvbr1hyymhqahfmm8yyjvwbv3",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/9b3476ff-6d0a-4ff8-956d-270147f21cd4/fc1a19d572245fab14f2b06090ed92bd4a58873121d683504c7532a937104b72/VisualStudio.16.Release.chman"
+    },
+    "https://aka.ms/vs/16/release/installer": {
+      "etag": "\"d19925129a9d61:0\"",
+      "name": "vs_installer.opc",
+      "sha256": "08ra0m0yhmijgh2dd9a44b78q51y8aq5anxdwq167xd0ay7pgq6n",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/9b3476ff-6d0a-4ff8-956d-270147f21cd4/D6E0778F57A0F56302E6AD5B55B0423E148CCE2244A5D6047C3256E841052A23/vs_installer.opc"
+    },
+    "https://aka.ms/vs/16/release/vs_buildtools.exe": {
+      "etag": "\"a3b6c46a94cad61:0\"",
+      "name": "vs_BuildTools.exe",
+      "sha256": "1w09ny2rczkiqg40hf9d54sffvgr4mh9cbslama32lzpyiar7yyc",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/9b3476ff-6d0a-4ff8-956d-270147f21cd4/ccfb9355f4f753315455542f966025f96de734292d3908c8c3717e9685b709f0/vs_BuildTools.exe"
+    },
+    "https://download.visualstudio.microsoft.com/download/pr/9b3476ff-6d0a-4ff8-956d-270147f21cd4/6f30f8af39f763068e5dcd0e043939e0e17c6af6becb30c4f289a7a6e56e812c/VisualStudio.vsman": {
+      "etag": "\"75aa9bf495cad61:0\"",
+      "name": "VisualStudio.vsman",
+      "sha256": "1j91xwjq60wmbkbfx4npdri8r6k8pn5yv9w8jzaxs2mwbcx2mv5z",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/9b3476ff-6d0a-4ff8-956d-270147f21cd4/6f30f8af39f763068e5dcd0e043939e0e17c6af6becb30c4f289a7a6e56e812c/VisualStudio.vsman"
+    },
+    "https://download.visualstudio.microsoft.com/download/pr/b8d403d9-01a4-45a0-9229-db5572fd5e4e/69b2a5642d5d42f792744a1e9498528ef33efd68cfc5e54002b5d00165e981d4/VisualStudio.vsman": {
+      "etag": "\"3cf8b2ca87c7d61:0\"",
+      "name": "VisualStudio.vsman",
+      "sha256": "14m2zl5kxhhpws2a5bdl64sxfgmfyh6firnbxrhkcrjp2sfzxqp8",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/b8d403d9-01a4-45a0-9229-db5572fd5e4e/69b2a5642d5d42f792744a1e9498528ef33efd68cfc5e54002b5d00165e981d4/VisualStudio.vsman"
+    },
+    "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso": {
+      "etag": "\"1895f000-5aaeb92f1aa25\"",
+      "name": "virtio-win-0.1.185.iso",
+      "sha256": "11n3kjyawiwacmi3jmfmn311g9xvfn6m0ccdwnjxw1brzb4kqaxg",
+      "url": "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.185-2/virtio-win-0.1.185.iso"
+    }
+  }
+}

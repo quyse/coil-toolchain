@@ -8,4 +8,6 @@ rec {
   utils = import ./utils.nix;
 
   windows = import ./platforms/windows;
+
+  fixeds = import ./fixeds.nix;
 }

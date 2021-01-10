@@ -1,5 +1,6 @@
 { pkgs
 , windows
+, fixeds ? import ../../fixeds.nix
 }:
 
 rec {
@@ -7,9 +8,12 @@ rec {
   # inspiration: https://github.com/mstorsjo/msvc-wine/blob/master/vsdownload.py
   vsPackages = { versionMajor, versionPreview ? false, product ? "Microsoft.VisualStudio.Product.BuildTools" }: let
 
-    channelUri = "https://aka.ms/vs/${toString versionMajor}/${if versionPreview then "pre" else "release"}/channel";
+    uriPrefix = "https://aka.ms/vs/${toString versionMajor}/${if versionPreview then "pre" else "release"}";
 
-    channelManifest = builtins.fetchurl channelUri;
+    channelUri = "${uriPrefix}/channel";
+    channelManifest = pkgs.fetchurl {
+      inherit (fixeds.fetchurl."${channelUri}") url sha256 name;
+    };
     channelManifestJSON = builtins.fromJSON (builtins.readFile channelManifest);
 
     manifestDesc = builtins.head (pkgs.lib.findSingle (c: c.type == "Manifest") null null channelManifestJSON.channelItems).payloads;
@@ -17,7 +21,9 @@ rec {
     # manifest = pkgs.fetchurl {
     #   inherit (manifestDesc) url sha256;
     # };
-    manifest = builtins.fetchurl manifestDesc.url;
+    manifest = pkgs.fetchurl {
+      inherit (fixeds.fetchurl."${manifestDesc.url}") url sha256 name;
+    };
     manifestJSON = builtins.fromJSON (builtins.readFile manifest);
 
     packages = pkgs.lib.groupBy (package: normalizeVsPackageId package.id) manifestJSON.packages;
@@ -137,13 +143,11 @@ rec {
     # };
 
     vsBuildToolsExe = pkgs.fetchurl {
-      url = "https://aka.ms/vs/${toString versionMajor}/${if versionPreview then "pre" else "release"}/vs_buildtools.exe";
-      sha256 = "1w09ny2rczkiqg40hf9d54sffvgr4mh9cbslama32lzpyiar7yyc";
+      inherit (fixeds.fetchurl."${uriPrefix}/vs_buildtools.exe") url sha256 name;
     };
 
     vsInstallerExe = pkgs.fetchurl {
-      url = "https://aka.ms/vs/${toString versionMajor}/${if versionPreview then "pre" else "release"}/installer";
-      sha256 = "08ra0m0yhmijgh2dd9a44b78q51y8aq5anxdwq167xd0ay7pgq6n";
+      inherit (fixeds.fetchurl."${uriPrefix}/installer") url sha256 name;
     };
 
     disk = { packageIds, arch ? "x64", language ? "en-US", includeRecommended ? false, includeOptional ? false }: windows.runPackerStep {

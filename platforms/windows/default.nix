@@ -1,4 +1,6 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> {}
+, fixeds ? import ../../fixeds.nix
+}:
 
 rec {
   runPackerStep =
@@ -138,8 +140,8 @@ rec {
     });
 
   # using bento as a maintained source of .iso URLs/checksums and autounattend scripts
-  bento = builtins.fetchGit {
-    url = "https://github.com/chef/bento.git";
+  bento = pkgs.fetchgit {
+    inherit (fixeds.fetchgit."https://github.com/chef/bento.git") url rev sha256;
   };
 
   bentoWindowsIso = let
@@ -245,13 +247,7 @@ rec {
     };
   };
 
-  # mutable URL for stable version:
-  # https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
-  virtio_win_iso = let
-    version = "0.1.185-2";
-    sha256 = "11n3kjyawiwacmi3jmfmn311g9xvfn6m0ccdwnjxw1brzb4kqaxg";
-  in pkgs.fetchurl {
-    url = "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-${version}/virtio-win.iso";
-    inherit sha256;
+  virtio_win_iso = pkgs.fetchurl {
+    inherit (fixeds.fetchurl."https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso") url sha256 name;
   };
 }
