@@ -14,19 +14,25 @@ const run = async () => {
 };
 
 const refresh = async (fixeds) => {
+  let fetchurlChanged = 0, fetchgitChanged = 0;
+
   // process fetchurl
   {
     const urls = Object.keys(fixeds.fetchurl);
     for(let i = 0; i < urls.length; ++i)
-      await refreshFetchUrl(urls[i], fixeds.fetchurl[urls[i]]);
+      if(await refreshFetchUrl(urls[i], fixeds.fetchurl[urls[i]]))
+        fetchurlChanged++;
   }
 
   // process fetchgit
   {
     const urls = Object.keys(fixeds.fetchgit);
     for(let i = 0; i < urls.length; ++i)
-      await refreshFetchGit(urls[i], fixeds.fetchgit[urls[i]]);
+      if(await refreshFetchGit(urls[i], fixeds.fetchgit[urls[i]]))
+        fetchgitChanged++;
   }
+
+  console.log((fetchurlChanged > 0 || fetchgitChanged > 0) ? `CHANGES DETECTED: changed ${fetchurlChanged} URLs, ${fetchgitChanged} Gits` : 'NO CHANGES DETECTED');
 };
 
 const refreshFetchUrl = async (url, obj) => {
