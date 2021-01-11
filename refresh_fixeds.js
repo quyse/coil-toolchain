@@ -10,7 +10,17 @@ const run = async () => {
 
   await refresh(fixeds);
 
-  await fs.writeFile(fixedsFile, `${JSON.stringify(fixeds, null, 2)}\n`);
+  // sort json with jq
+  const outFixeds = await fs.open(fixedsFile, 'w');
+  await new Promise((resolve, reject) => {
+    const p = child_process.spawn("jq", ['-S'], {
+      stdio: ['pipe', outFixeds, 'inherit']
+    });
+    p.stdin.write(JSON.stringify(fixeds));
+    p.stdin.end();
+    p.on('close', (code) => code == 0 ? resolve() : reject(code));
+  });
+  await outFixeds.close();
 };
 
 const refresh = async (fixeds) => {
