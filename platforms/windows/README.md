@@ -15,3 +15,4 @@ Inspiration and bits and pieces from:
 
 * [WFVM](https://git.m-labs.hk/M-Labs/wfvm)
 * [StefanScherer/packer-windows](https://github.com/StefanScherer/packer-windows)
+* [mstorsjo/msvc-wine](https://github.com/mstorsjo/msvc-wine)
