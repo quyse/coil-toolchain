@@ -6,7 +6,7 @@
 rec {
   # Nix-based package downloader for Visual Studio
   # inspiration: https://github.com/mstorsjo/msvc-wine/blob/master/vsdownload.py
-  vsPackages = { versionMajor, versionPreview ? false, product ? "Microsoft.VisualStudio.Product.BuildTools" }: let
+  vsPackages = { versionMajor, versionPreview ? false, product }: let
 
     uriPrefix = "https://aka.ms/vs/${toString versionMajor}/${if versionPreview then "pre" else "release"}";
 
@@ -115,6 +115,7 @@ rec {
       }) (map normalizeVsPackageId (packageIds ++ [product])))).packages;
       vsSetupExe = {
         "Microsoft.VisualStudio.Product.BuildTools" = vsBuildToolsExe;
+        "Microsoft.VisualStudio.Product.Community" = vsCommunityExe;
       }.${product};
       layoutJson = pkgs.writeText "layout.json" (builtins.toJSON {
         inherit channelUri;
@@ -145,6 +146,10 @@ rec {
 
     vsBuildToolsExe = pkgs.fetchurl {
       inherit (fixeds.fetchurl."${uriPrefix}/vs_buildtools.exe") url sha256 name;
+    };
+
+    vsCommunityExe = pkgs.fetchurl {
+      inherit (fixeds.fetchurl."${uriPrefix}/vs_community.exe") url sha256 name;
     };
 
     vsInstallerExe = pkgs.fetchurl {
@@ -182,13 +187,25 @@ rec {
 
   normalizeVsPackageId = pkgs.lib.toLower;
 
-  vsBuildToolsCppDisk = { versionMajor }: (vsPackages {
+  vsProducts = {
+    buildTools = "Microsoft.VisualStudio.Product.BuildTools";
+    community = "Microsoft.VisualStudio.Product.Community";
+  };
+  vsWorkloads = {
+    vcTools = "Microsoft.VisualStudio.Workload.VCTools";
+    nativeDesktop = "Microsoft.VisualStudio.Workload.NativeDesktop";
+  };
+
+  vsDisk = { versionMajor, product, workloads }: (vsPackages {
     inherit versionMajor;
+    product = vsProducts."${product}";
   }).disk {
-    packageIds = ["Microsoft.VisualStudio.Workload.VCTools"];
+    packageIds = map (workload: vsWorkloads."${workload}") workloads;
     includeRecommended = true;
   };
 
-  vs16BuildToolsCppDisk = vsBuildToolsCppDisk { versionMajor = 16; };
-  vs15BuildToolsCppDisk = vsBuildToolsCppDisk { versionMajor = 15; };
+  vs16BuildToolsCppDisk = vsDisk { versionMajor = 16; product = "buildTools"; workloads = ["vcTools"]; };
+  vs15BuildToolsCppDisk = vsDisk { versionMajor = 15; product = "buildTools"; workloads = ["vcTools"]; };
+  vs16CommunityCppDisk = vsDisk { versionMajor = 16; product = "community"; workloads = ["nativeDesktop"]; };
+  vs15CommunityCppDisk = vsDisk { versionMajor = 15; product = "community"; workloads = ["nativeDesktop"]; };
 }

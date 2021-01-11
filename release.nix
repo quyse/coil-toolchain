@@ -12,6 +12,6 @@ in {
   touch = {
     llvm11cc = llvm11.stdenv.cc;
     inherit (windows) initialDisk;
-    inherit (windows.msvs) vs16BuildToolsCppDisk vs15BuildToolsCppDisk;
+    inherit (windows.msvs) vs16BuildToolsCppDisk vs15BuildToolsCppDisk vs16CommunityCppDisk vs15CommunityCppDisk;
   };
 }
