@@ -182,6 +182,13 @@ rec {
 
   normalizeVsPackageId = pkgs.lib.toLower;
 
-  vs16BuildToolsDisk = (vsPackages { versionMajor = 16; }).disk;
-  vs15BuildToolsDisk = (vsPackages { versionMajor = 15; }).disk;
+  vsBuildToolsCppDisk = { versionMajor }: (vsPackages {
+    inherit versionMajor;
+  }).disk {
+    packageIds = ["Microsoft.VisualStudio.Workload.VCTools"];
+    includeRecommended = true;
+  };
+
+  vs16BuildToolsCppDisk = vsBuildToolsCppDisk { versionMajor = 16; };
+  vs15BuildToolsCppDisk = vsBuildToolsCppDisk { versionMajor = 15; };
 }
