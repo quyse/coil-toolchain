@@ -103,16 +103,14 @@ windows = rec {
             [ "-drive" "file=${output_directory}/packer-qemu,if=virtio,cache=writeback,discard=ignore,format=qcow2,index=0" ]
           ] ++
           # cdroms
-          (if disk == null && iso != null then [
+          pkgs.lib.optionals (disk == null && iso != null) [
             # main cdrom
             [ "-drive" "file=${iso.iso},media=cdrom,index=1" ]
             # virtio-win cdrom
             [ "-drive" "file=${virtio_win_iso},media=cdrom,index=2" ]
-          ] else []) ++
+          ] ++
           # extra hdd
-          (if extraDisk != null then [
-            [ "-drive" "file=${extraDisk},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=3" ]
-          ] else []);
+          pkgs.lib.optional (extraDisk != null) [ "-drive" "file=${extraDisk},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=3" ];
         }
         // (if disk != null then {
           disk_image = true;
@@ -127,15 +125,13 @@ windows = rec {
         } else {})
       )];
       provisioners =
-        (if extraDisk != null then [
-          {
-            type = "powershell";
-            inline = [
-              "Set-Disk -Number 1 -IsOffline $False"
-              "Set-Disk -Number 1 -IsReadOnly $False"
-            ];
-          }
-        ] else []) ++
+        pkgs.lib.optional (extraDisk != null) {
+          type = "powershell";
+          inline = [
+            "Set-Disk -Number 1 -IsOffline $False"
+            "Set-Disk -Number 1 -IsReadOnly $False"
+          ];
+        } ++
         provisioners;
       variables = {
         cpus = toString(cpus);
