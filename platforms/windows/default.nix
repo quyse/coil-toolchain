@@ -251,7 +251,7 @@ windows = rec {
     inherit (fixeds.fetchurl."https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso") url sha256 name;
   };
 
-  msvc = import ./msvc.nix {
+  msvs = import ./msvs.nix {
     inherit pkgs windows fixeds;
   };
 };
