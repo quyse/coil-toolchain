@@ -16,6 +16,8 @@ windows = rec {
     , outputHash ? null
     , outputHashAlgo ? "sha256"
     , outputHashMode ? "flat"
+    , run ? true # set to false to return generated script instead of actually running it
+    , headless ? true # set to false to run VM with UI for debugging
     }: let
     libguestfs = pkgs.libguestfs-with-appliance.override {
       qemu = pkgs.qemu_kvm; # no need to use full qemu
@@ -46,7 +48,7 @@ windows = rec {
       echo 'Starting VM...'
       PATH=${pkgs.qemu_kvm}/bin:$PATH ${pkgs.buildPackages.packer}/bin/packer build --var cpus=$NIX_BUILD_CORES ${packerTemplateJson {
         name = "${name}.template.json";
-        inherit disk provisioners;
+        inherit disk provisioners headless;
         extraDisk = if extraMount != null then "extraMount.img" else null;
       }}
       ${pkgs.lib.optionalString (extraMount != null) ''
@@ -68,7 +70,7 @@ windows = rec {
     env = if outputHash != null then {
       inherit outputHash outputHashAlgo outputHashMode;
     } else {};
-  in pkgs.runCommand name env script;
+  in (if run then pkgs.runCommand name env else pkgs.writeScript "${name}.sh") script;
 
   initialDisk = runPackerStep {};
 
