@@ -50,7 +50,7 @@ rec {
       curVersion = deps.${dep} or null;
       in if curVersion == null || builtins.compareVersions version curVersion < 0
         then deps // {
-          ${dep} = version;
+          "${dep}" = version;
         }
         else deps;
     minGlibc = minDep "glibc";
