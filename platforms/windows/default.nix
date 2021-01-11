@@ -17,8 +17,11 @@ windows = rec {
     , outputHashAlgo ? "sha256"
     , outputHashMode ? "flat"
     }: let
+    libguestfs = pkgs.libguestfs-with-appliance.override {
+      qemu = pkgs.qemu_kvm; # no need to use full qemu
+    };
     guestfishCmd = ''
-      ${pkgs.libguestfs-with-appliance}/bin/guestfish \
+      ${libguestfs}/bin/guestfish \
         disk-create extraMount.img qcow2 ${extraMountSize} : \
         add extraMount.img format:qcow2 label:extraMount : \
         run : \
@@ -50,7 +53,7 @@ windows = rec {
         ${pkgs.lib.optionalString extraMountOut ''
           echo 'Copying extra mount data out...'
           mkdir ${extraMount}
-          ${pkgs.libguestfs-with-appliance}/bin/guestfish \
+          ${libguestfs}/bin/guestfish \
             add extraMount.img format:qcow2 label:extraMount readonly:true : \
             run : \
             mount-ro /dev/disk/guestfs/extraMount1 / : \
