@@ -99,6 +99,8 @@ const refreshFetchUrl = async (url, obj) => {
   } else {
     process.stderr.write(`  Up-to-date.\n`);
   }
+
+  return changed;
 }
 
 const refreshFetchGit = async (url, obj) => {
@@ -157,11 +159,11 @@ const refreshFetchGit = async (url, obj) => {
         console.log(result);
         obj.sha256 = result.sha256;
         process.stderr.write(`  Updated.\n`);
-      } else {
-        process.stderr.write(`  Up-to-date.\n`);
+        return true;
       }
 
-      return;
+      process.stderr.write(`  Up-to-date.\n`);
+      return false;
     }
   }
 
