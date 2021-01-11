@@ -45,7 +45,7 @@ rec {
         in pkgs.lib.nameValuePair
           (if packageVariant.type == "Vsix" then "payload.vsix" else fileName)
           (pkgs.fetchurl {
-            name = pkgs.lib.strings.sanitizeDerivationName fileName;
+            name = pkgs.lib.strings.sanitizeDerivationName (baseNameOf fileName);
             inherit (payload) url sha256;
           });
         depPred = depDesc:
