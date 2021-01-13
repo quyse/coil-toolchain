@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}
+{ pkgs
 , fixeds
 }: let
 
@@ -250,10 +250,6 @@ windows = rec {
 
   virtio_win_iso = pkgs.fetchurl {
     inherit (fixeds.fetchurl."https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso") url sha256 name;
-  };
-
-  msvs = import ./msvs.nix {
-    inherit pkgs windows fixeds;
   };
 };
 in windows
