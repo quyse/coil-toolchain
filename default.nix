@@ -11,5 +11,5 @@ rec {
     inherit fixeds;
   } // args);
 
-  fixeds = import ./fixeds.nix;
+  fixeds = builtins.fromJSON (builtins.readFile ./fixeds.json);
 }
