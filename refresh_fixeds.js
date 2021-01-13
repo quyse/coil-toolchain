@@ -28,7 +28,7 @@ const refresh = async (fixeds) => {
 
   // process fetchurl
   {
-    const urls = Object.keys(fixeds.fetchurl);
+    const urls = Object.keys(fixeds.fetchurl || {});
     for(let i = 0; i < urls.length; ++i)
       if(await refreshFetchUrl(urls[i], fixeds.fetchurl[urls[i]]))
         fetchurlChanged++;
@@ -36,7 +36,7 @@ const refresh = async (fixeds) => {
 
   // process fetchgit
   {
-    const urls = Object.keys(fixeds.fetchgit);
+    const urls = Object.keys(fixeds.fetchgit || {});
     for(let i = 0; i < urls.length; ++i)
       if(await refreshFetchGit(urls[i], fixeds.fetchgit[urls[i]]))
         fetchgitChanged++;
