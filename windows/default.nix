@@ -253,5 +253,13 @@ windows = rec {
   virtio_win_iso = pkgs.fetchurl {
     inherit (fixeds.fetchurl."https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso") url sha256 name;
   };
+
+  wine = (pkgs.winePackagesFor "wine64").minimal;
+
+  initWinePrefix = ''
+    mkdir .wineprefix
+    export WINEPREFIX=$(readlink -f .wineprefix) WINEDEBUG=-all
+    winecfg
+  '';
 };
 in windows
