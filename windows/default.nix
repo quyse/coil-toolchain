@@ -261,5 +261,9 @@ windows = rec {
     export WINEPREFIX=$(readlink -f .wineprefix) WINEDEBUG=-all
     winecfg
   '';
+
+  # convert list of unix-style paths to windows-style PATH var
+  # paths must be pre-shell-escaped if needed
+  makeWinePaths = paths: builtins.concatStringsSep ";" (map (path: "$(winepath -w ${path})") paths);
 };
 in windows
