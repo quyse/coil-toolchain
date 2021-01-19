@@ -63,6 +63,7 @@ in rec {
   });
 
   hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.lldClang) [
+    utils.stdenvFunctionSections
     utils.stdenvHostUseLLVM
     utils.stdenvPlatformFixes
     pkgs.stdenvAdapters.propagateBuildInputs

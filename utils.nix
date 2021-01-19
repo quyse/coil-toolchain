@@ -19,6 +19,14 @@ rec {
       } else {}));
     });
 
+  stdenvFunctionSections = stdenv:
+    stdenv.overrideDerivation (s: s // {
+      mkDerivation = args: s.mkDerivation (args // {
+        NIX_CFLAGS_COMPILE = "${toString (args.NIX_CFLAGS_COMPILE or "")} -ffunction-sections";
+        NIX_LDFLAGS = "${toString (args.NIX_LDFLAGS or "")} --gc-sections";
+      });
+    });
+
   unNixElf = {
     x86_64 = "patchelf --remove-rpath --set-interpreter /lib64/ld-linux-x86-64.so.2";
   };
