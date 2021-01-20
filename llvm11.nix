@@ -5,9 +5,23 @@ let
   utils = import ./utils.nix;
 
   patchMingwLibc = libc: if libc.pname == "mingw-w64"
-    then libc.overrideAttrs (attrs: {
-      patches = (attrs.patches or []) ++ [./libs/mingw-w64/intrin.patch];
-    })
+    then let
+      mingw_w64 = libc.overrideAttrs (attrs: rec {
+        version = "8.0.0";
+        src = pkgs.fetchurl {
+          url = "mirror://sourceforge/mingw-w64/mingw-w64-v${version}.tar.bz2";
+          sha256 = "0qjpb9rviasfshk337j5r32ncmrwml8sv6qnmb1lp4mkdbm41is4";
+        };
+        buildInputs = [mingw_w64_headers];
+      });
+      mingw_w64_headers = pkgs.stdenvNoCC.mkDerivation {
+        name = "${mingw_w64.name}-headers";
+        inherit (mingw_w64) src meta;
+        preConfigure = ''
+          cd mingw-w64-headers
+        '';
+      };
+    in mingw_w64
     else libc;
 
 in rec {
