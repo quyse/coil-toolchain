@@ -11,6 +11,7 @@ windows = rec {
   runPackerStep =
     { name ? "packer-disk"
     , disk ? null # set to the previous step, null for initial step
+    , iso ? null
     , provisioners ? packerInitialProvisioners
     , extraMount ? null # path to mount (actually copy) into VM as drive D:
     , extraMountIn ? true # whether to copy data into VM
@@ -50,7 +51,7 @@ windows = rec {
       echo 'Starting VM...'
       PATH=${qemu}/bin:$PATH ${pkgs.buildPackages.packer}/bin/packer build --var cpus=$NIX_BUILD_CORES ${packerTemplateJson {
         name = "${name}.template.json";
-        inherit disk provisioners headless;
+        inherit disk iso provisioners headless;
         extraDisk = if extraMount != null then "extraMount.img" else null;
       }}
       ${pkgs.lib.optionalString (extraMount != null) ''
@@ -74,14 +75,18 @@ windows = rec {
     } else {};
   in (if run then pkgs.runCommand name env else pkgs.writeScript "${name}.sh") script;
 
-  initialDisk = runPackerStep {};
+  initialDisk = { version ? "2019" }: runPackerStep {
+    iso = windowsInstallIso {
+      inherit version;
+    };
+  };
 
   packerTemplateJson =
     { name
     , cpus ? 1
     , memory ? 4096
     , disk ? null
-    , iso ? bentoWindowsIso
+    , iso ? null
     , output_directory ? "build"
     , provisioners
     , extraDisk ? null
@@ -147,10 +152,10 @@ windows = rec {
     inherit (fixeds.fetchgit."https://github.com/chef/bento.git") url rev sha256;
   };
 
-  bentoWindowsIso = let
+  windowsInstallIso = { version }: let
     templateDir = "packer_templates/windows";
-    templateFile = "${bento}/${templateDir}/windows-2019.json";
-    autounattendFile = "${bento}/${templateDir}/answer_files/2019/Autounattend.xml";
+    templateFile = "${bento}/${templateDir}/windows-${version}.json";
+    autounattendFile = "${bento}/${templateDir}/answer_files/${version}/Autounattend.xml";
     # parse template file
     templateJson = builtins.fromJSON (builtins.readFile templateFile);
     # extract ISO url and download it ourselves

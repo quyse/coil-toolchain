@@ -11,6 +11,6 @@ in {
   inherit root;
   touch = {
     llvm11cc = llvm11.stdenv.cc;
-    inherit (windows) initialDisk;
+    initialDisk = windows.initialDisk {};
   };
 }
