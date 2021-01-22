@@ -1,12 +1,14 @@
 rec {
-  stdenvHostUseLLVM = stdenv: stdenv.override {
+  stdenvHostFlags = stdenv: stdenv.override {
     hostPlatform = stdenv.hostPlatform // {
       useLLVM = true;
+      isStatic = true;
     };
   };
-  stdenvTargetUseLLVM = stdenv: stdenv.override {
+  stdenvTargetFlags = stdenv: stdenv.override {
     targetPlatform = stdenv.targetPlatform // {
       useLLVM = true;
+      isStatic = true;
     };
   };
 

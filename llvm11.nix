@@ -57,7 +57,7 @@ in rec {
     stdenv = buildStdenv;
     targetLlvmLibraries = hostLibraries;
     wrapCCWith = args: pkgs.buildPackages.wrapCCWith (args // {
-      stdenvNoCC = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenvNoCC;
+      stdenvNoCC = utils.stdenvTargetFlags pkgs.buildPackages.stdenvNoCC;
     });
     wrapBintoolsWith =
       { libc ?
@@ -67,7 +67,7 @@ in rec {
       , ...
       } @ args:
       pkgs.buildPackages.wrapBintoolsWith (args // {
-        stdenvNoCC = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenvNoCC;
+        stdenvNoCC = utils.stdenvTargetFlags pkgs.buildPackages.stdenvNoCC;
         inherit libc;
       });
   }).tools.extend (self: super: {
@@ -78,11 +78,11 @@ in rec {
 
   hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.lldClang) [
     utils.stdenvFunctionSections
-    utils.stdenvHostUseLLVM
+    utils.stdenvHostFlags
     utils.stdenvPlatformFixes
     pkgs.stdenvAdapters.propagateBuildInputs
     hostStdenvAdapter
   ];
-  buildStdenv = utils.stdenvTargetUseLLVM pkgs.buildPackages.stdenv;
+  buildStdenv = utils.stdenvTargetFlags pkgs.buildPackages.stdenv;
   stdenv = hostStdenv;
 }
