@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ce103f6..1bf2b3a 100644
+index 57fd278..c1ab890 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -899,7 +899,6 @@ if(MINGW OR MSYS)
+@@ -893,7 +894,6 @@ if(MINGW OR MSYS)
              -I ${CMAKE_CURRENT_BINARY_DIR}
              -o ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj
              -i ${CMAKE_CURRENT_SOURCE_DIR}/win32/zlib${SUFFIX}1.rc)

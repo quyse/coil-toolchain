@@ -5,13 +5,13 @@
 
 stdenv.mkDerivation rec {
   pname = "zlib-ng";
-  version = "1.9.9-b1";
+  version = "2.0.0-RC1";
 
   src = fetchFromGitHub {
     owner = "zlib-ng";
     repo = "zlib-ng";
-    rev = version;
-    sha256 = "1yh3nmdlvm838lnqric7nzbgzj5dhja6pz7wx9ghp811x39vk81v";
+    rev = "v${version}";
+    sha256 = "0wcx0640kkmkb2hppf7prz2k8bz35xqrkkmylln8ssbb11l3flai";
   };
 
   nativeBuildInputs = with buildPackages; [ cmake ];
@@ -24,7 +24,7 @@ stdenv.mkDerivation rec {
     "-DWITH_NATIVE_INSTRUCTIONS=OFF"
   ];
 
-  patches = [./no-rc.patch];
+  patches = [./no-rc.patch ./no-icc.patch];
 
   outputs = ["out" "man"];
 

@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 57fd278..42d802c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -137,7 +137,7 @@ if(WITH_GZFILEOP)
+     add_definitions(-DWITH_GZFILEOP)
+ endif()
+ 
+-if("${CMAKE_C_COMPILER}" MATCHES "icc" OR "${CMAKE_C_COMPILER}" MATCHES "icpc" OR "${CMAKE_C_COMPILER}" MATCHES "icl")
++if(FALSE AND ("${CMAKE_C_COMPILER}" MATCHES "icc" OR "${CMAKE_C_COMPILER}" MATCHES "icpc" OR "${CMAKE_C_COMPILER}" MATCHES "icl"))
+     if(CMAKE_HOST_UNIX OR APPLE)
+         set(WARNFLAGS "-w3")
+         set(WARNFLAGS_MAINTAINER "-w3 -Wcheck -Wremarks")
