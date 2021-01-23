@@ -33,16 +33,17 @@ windows = rec {
         part-disk /dev/disk/guestfs/extraMount mbr : \
         part-set-mbr-id /dev/disk/guestfs/extraMount 1 07 : \
         mkfs ntfs /dev/disk/guestfs/extraMount1'';
+    extraMountArg = pkgs.lib.escapeShellArg extraMount;
     script = ''
       echo 'Executing beforeScript...'
       ${beforeScript}
       ${pkgs.lib.optionalString (extraMount != null) (
         if extraMountIn then ''
           echo 'Copying extra mount data in...'
-          tar -C ${extraMount} -c --dereference . | ${guestfishCmd} : \
+          tar -C ${extraMountArg} -c --dereference . | ${guestfishCmd} : \
             mount /dev/disk/guestfs/extraMount1 / : \
             tar-in - /
-          rm -r ${extraMount}
+          rm -r ${extraMountArg}
         '' else ''
           echo 'Creating extra mount...'
           ${guestfishCmd}
@@ -57,12 +58,12 @@ windows = rec {
       ${pkgs.lib.optionalString (extraMount != null) ''
         ${pkgs.lib.optionalString extraMountOut ''
           echo 'Copying extra mount data out...'
-          mkdir ${extraMount}
+          mkdir ${extraMountArg}
           ${libguestfs}/bin/guestfish \
             add extraMount.img format:qcow2 label:extraMount readonly:true : \
             run : \
             mount-ro /dev/disk/guestfs/extraMount1 / : \
-            tar-out / - | tar -C ${extraMount} -xf -
+            tar-out / - | tar -C ${extraMountArg} -xf -
         ''}
         echo 'Clearing extra mount...'
         rm extraMount.img
