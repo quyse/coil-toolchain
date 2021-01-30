@@ -24,6 +24,7 @@ windows = rec {
     , outputHashMode ? "flat"
     , run ? true # set to false to return generated script instead of actually running it
     , headless ? true # set to false to run VM with UI for debugging
+    , meta ? null
     }: let
     guestfishCmd = ''
       ${libguestfs}/bin/guestfish \
@@ -71,14 +72,21 @@ windows = rec {
       echo 'Executing afterScript...'
       ${afterScript}
     '';
-    env = if outputHash != null then {
-      inherit outputHash outputHashAlgo outputHashMode;
-    } else {};
+    env =
+      (pkgs.lib.optionalAttrs (outputHash != null) {
+        inherit outputHash outputHashAlgo outputHashMode;
+      }) //
+      (pkgs.lib.optionalAttrs (meta != null) {
+        inherit meta;
+      });
   in (if run then pkgs.runCommand name env else pkgs.writeScript "${name}.sh") script;
 
   initialDisk = { version ? "2019" }: runPackerStep {
     iso = windowsInstallIso {
       inherit version;
+    };
+    meta = {
+      license = pkgs.lib.licenses.unfree;
     };
   };
 
@@ -163,6 +171,9 @@ windows = rec {
     iso = pkgs.fetchurl {
       url = templateJson.variables.iso_url;
       sha1 = checksum;
+      meta = {
+        license = pkgs.lib.licenses.unfree;
+      };
     };
     checksum = templateJson.variables.iso_checksum;
   in {
@@ -258,6 +269,9 @@ windows = rec {
 
   virtio_win_iso = pkgs.fetchurl {
     inherit (fixeds.fetchurl."https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso") url sha256 name;
+    meta = {
+      license = pkgs.lib.licenses.bsd3;
+    };
   };
 
   wine = (pkgs.winePackagesFor "wine64").minimal;
