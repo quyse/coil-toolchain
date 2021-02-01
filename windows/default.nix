@@ -72,13 +72,14 @@ windows = rec {
       echo 'Executing afterScript...'
       ${afterScript}
     '';
-    env =
-      (pkgs.lib.optionalAttrs (outputHash != null) {
-        inherit outputHash outputHashAlgo outputHashMode;
-      }) //
-      (pkgs.lib.optionalAttrs (meta != null) {
-        inherit meta;
-      });
+    env = {
+      requiredSystemFeatures = ["kvm"];
+    } // (pkgs.lib.optionalAttrs (outputHash != null) {
+      inherit outputHash outputHashAlgo outputHashMode;
+    })
+    // (pkgs.lib.optionalAttrs (meta != null) {
+      inherit meta;
+    });
   in (if run then pkgs.runCommand name env else pkgs.writeScript "${name}.sh") script;
 
   initialDisk = { version ? "2019" }: runPackerStep {
