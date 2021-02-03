@@ -1,4 +1,5 @@
 { stdenv
+, lib
 , fetchFromGitHub
 , buildPackages
 }:
@@ -32,7 +33,7 @@ stdenv.mkDerivation rec {
   doCheck = false;
   enableParallelBuilding = true;
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     homepage = "https://github.com/zlib-ng/zlib-ng";
     description = "zlib data compression library for the next generation systems";
     license = licenses.zlib;

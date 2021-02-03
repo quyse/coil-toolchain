@@ -19,8 +19,8 @@ in rec {
         inherit expat zlib bzip2 icu;
       })).overrideAttrs (attrs: {
         patches = (attrs.patches or [])
-          ++ stdenv.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [./libs/boost/cross.patch]
-          ++ stdenv.lib.optionals (builtins.compareVersions attrs.version "1.75" < 0) [./libs/boost/libcxx.patch]
+          ++ self.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [./libs/boost/cross.patch]
+          ++ self.lib.optionals (builtins.compareVersions attrs.version "1.75" < 0) [./libs/boost/libcxx.patch]
         ;
         # disarm strange RANLIB line
         postFixup = builtins.replaceStrings ["$RANLIB"] ["true"] (attrs.postFixup or "");
