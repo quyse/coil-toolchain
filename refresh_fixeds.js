@@ -52,24 +52,37 @@ const refreshFetchUrl = async (url, obj) => {
   while(fetching) {
     const response = await new Promise((resolve, reject) => {
       process.stderr.write(`  Fetching ${fetchUrl}...\n`);
+      const headers = {};
+      if(obj.etag) headers['if-none-match'] = obj.etag;
+      if(obj['last-modified']) headers['if-modified-since'] = obj['last-modified'];
       const request = https.request(fetchUrl, {
         method: 'HEAD',
-        headers: obj.etag ? { 'if-none-match': obj.etag } : {}
+        headers
       }, (response) => resolve(response));
       request.on('error', reject);
       request.end();
     });
+    const record = (field, value) => {
+      if(obj[field] !== value) {
+        obj[field] = value;
+        changed = true;
+      }
+    };
+    const recordHeader = (header) => {
+      if(response.headers[header]) record(header, response.headers[header]);
+    };
     switch(response.statusCode) {
     case 200:
       process.stderr.write(`  Got 200 OK.\n`);
       fetching = false;
-      obj.url = fetchUrl;
-      if(response.headers.etag) obj.etag = response.headers.etag;
-      obj.name = /([^/]+)$/.exec(fetchUrl)[1];
+      record('url', fetchUrl);
+      recordHeader('etag');
+      recordHeader('last-modified');
+      record('name', /([^/]+)$/.exec(fetchUrl)[1]);
       if(response.headers['content-disposition']) {
         const a = /^attachment;\s+filename=(.+)$/.exec(response.headers['content-disposition']);
         if(a) {
-          obj.name = a[1];
+          record('name', a[1]);
         }
       }
       changed = true;
@@ -81,6 +94,9 @@ const refreshFetchUrl = async (url, obj) => {
     case 304:
       process.stderr.write(`  Got 304 Not modified.\n`);
       fetching = false;
+      record('url', fetchUrl);
+      recordHeader('etag');
+      recordHeader('last-modified');
       break;
     default:
       throw `Fetching ${url}: bad status ${response.statusCode}`;
