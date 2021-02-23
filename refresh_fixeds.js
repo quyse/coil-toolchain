@@ -172,7 +172,7 @@ const refreshFetchGit = async (url, obj) => {
           const p = child_process.spawn('nix-prefetch-git', [
             '--branch-name', ref,
             '--rev', rev,
-            url
+            effectiveUrl
           ], {
             stdio: ['ignore', 'pipe', 'inherit']
           });
