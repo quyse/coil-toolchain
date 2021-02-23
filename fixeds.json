@@ -9,6 +9,7 @@
   "fetchurl": {
     "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso": {
       "etag": "\"1895f000-5aaeb92f1aa25\"",
+      "last-modified": "Tue, 21 Jul 2020 03:54:02 GMT",
       "name": "virtio-win-0.1.185.iso",
       "sha256": "11n3kjyawiwacmi3jmfmn311g9xvfn6m0ccdwnjxw1brzb4kqaxg",
       "url": "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.185-2/virtio-win-0.1.185.iso"
