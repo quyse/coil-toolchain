@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs').promises;
+const http = require('http');
 const https = require('https');
 const child_process = require('child_process');
 
@@ -55,7 +56,7 @@ const refreshFetchUrl = async (url, obj) => {
       const headers = {};
       if(obj.etag) headers['if-none-match'] = obj.etag;
       if(obj['last-modified']) headers['if-modified-since'] = obj['last-modified'];
-      const request = https.request(fetchUrl, {
+      const request = (fetchUrl.startsWith("https://") ? https : http).request(fetchUrl, {
         method: 'HEAD',
         headers
       }, (response) => resolve(response));
