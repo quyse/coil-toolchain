@@ -1,12 +1,10 @@
 { pkgs }:
 let
-  root = import ./.;
-  llvm11 = root.llvm11 {
+  root = import ./. {
     inherit pkgs;
   };
-  windows = root.windows {
-    inherit pkgs;
-  };
+  llvm11 = root.llvm11 {};
+  windows = root.windows {};
 in {
   inherit root;
   touch = {

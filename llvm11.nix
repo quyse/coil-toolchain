@@ -1,9 +1,8 @@
 { pkgs
+, utils
 , hostStdenvAdapter ? pkgs.lib.id
 }:
 let
-  utils = import ./utils.nix;
-
   patchMingwLibc = libc: if libc.pname == "mingw-w64"
     then let
       mingw_w64 = libc.overrideAttrs (attrs: rec {

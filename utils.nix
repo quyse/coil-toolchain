@@ -1,3 +1,4 @@
+{ pkgs }:
 rec {
   stdenvHostFlags = stdenv: stdenv.override {
     hostPlatform = stdenv.hostPlatform // {
@@ -34,7 +35,7 @@ rec {
   };
 
   # stdenv adapter, forcing glibc version
-  stdenvForceGlibcVersion = { pkgs, arch, version }: let
+  stdenvForceGlibcVersion = { arch, version }: let
     repo = pkgs.fetchFromGitHub {
       owner = "wheybags";
       repo = "glibc_version_header";
@@ -55,7 +56,7 @@ rec {
     });
 
   # easy-to-use stdenv adapter for all sorts of compatibility
-  stdenvForceCompatibility = { pkgs, reqs }: stdenv: let
+  stdenvForceCompatibility = { reqs }: stdenv: let
     minDep = dep: version: deps: let
       curVersion = deps.${dep} or null;
       in if curVersion == null || builtins.compareVersions version curVersion < 0
@@ -73,7 +74,6 @@ rec {
     deps = pkgs.lib.foldr f {} reqs;
     glibcReq = deps.glibc or null;
     glibcAdapter = stdenvForceGlibcVersion {
-      inherit pkgs;
       arch = if stdenv.hostPlatform.isx86_64 then "x64" else "x86";
       version = glibcReq;
     };

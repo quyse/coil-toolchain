@@ -1,14 +1,19 @@
+{ pkgs }:
 rec {
-  llvm11 = import ./llvm11.nix;
+  llvm11 = { ... }@args: import ./llvm11.nix ({
+    inherit pkgs utils;
+  } // args);
 
   llvm = llvm11;
 
   libs = import ./libs.nix;
 
-  utils = import ./utils.nix;
+  utils = import ./utils.nix {
+    inherit pkgs;
+  };
 
   windows = { ... }@args: import ./windows ({
-    inherit fixeds;
+    inherit pkgs fixeds;
   } // args);
 
   fixeds = builtins.fromJSON (builtins.readFile ./fixeds.json);
