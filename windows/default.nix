@@ -119,7 +119,7 @@ windows = rec {
             # https://blog.wikichoon.com/2014/07/enabling-hyper-v-enlightenments-with-kvm.html
             [ "-cpu" "qemu64,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time" ]
             # main hdd
-            [ "-drive" "file=${output_directory}/packer-qemu,if=virtio,cache=writeback,discard=ignore,format=qcow2,index=0" ]
+            [ "-drive" "file=${output_directory}/packer-qemu,if=virtio,cache=unsafe,discard=ignore,format=qcow2,index=0" ]
           ] ++
           # cdroms
           pkgs.lib.optionals (disk == null && iso != null) [
@@ -129,7 +129,7 @@ windows = rec {
             [ "-drive" "file=${virtio_win_iso},media=cdrom,index=2" ]
           ] ++
           # extra hdd
-          pkgs.lib.optional (extraDisk != null) [ "-drive" "file=${extraDisk},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=3" ];
+          pkgs.lib.optional (extraDisk != null) [ "-drive" "file=${extraDisk},if=virtio,cache=unsafe,discard=ignore,format=qcow2,index=3" ];
         }
         // (if disk != null then {
           disk_image = true;
