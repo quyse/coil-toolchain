@@ -36,6 +36,7 @@ windows = rec {
         mkfs ntfs /dev/disk/guestfs/extraMount1'';
     extraMountArg = pkgs.lib.escapeShellArg extraMount;
     script = ''
+      export HOME="$(mktemp -d)" # fix warning by guestfish
       echo 'Executing beforeScript...'
       ${beforeScript}
       ${pkgs.lib.optionalString (extraMount != null) (
