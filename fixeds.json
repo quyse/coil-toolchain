@@ -1,8 +1,8 @@
 {
   "fetchgit": {
     "https://github.com/chef/bento.git": {
-      "rev": "b5c6cb3c75bb111b9d55bb26bdb2740c162f1b89",
-      "sha256": "0pklxmwx8rrhmyq74k0xw2158labl8yhwsjrgnbaqri39sfbnacq",
+      "rev": "85b28ac5e8340e5453a333b5efbb9f1bc804a8ce",
+      "sha256": "16bf8dfcdzahkggbq0w8grgy7x4nbwwi29zcd80r1z92pcn4y167",
       "url": "https://github.com/chef/bento.git"
     }
   },
