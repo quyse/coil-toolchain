@@ -75,7 +75,7 @@ in rec {
     });
   });
 
-  hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.lldClang) [
+  hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.clangUseLLVM) [
     utils.stdenvFunctionSections
     utils.stdenvHostFlags
     utils.stdenvPlatformFixes
