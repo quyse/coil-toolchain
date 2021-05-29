@@ -3,7 +3,7 @@
 , hostStdenvAdapter ? pkgs.lib.id
 }:
 let
-  patchMingwLibc = libc: if libc.pname == "mingw-w64"
+  patchMingwLibc = libc: if libc != null && pkgs.lib.hasPrefix "mingw-w64" libc.name
     then let
       mingw_w64 = libc.overrideAttrs (attrs: rec {
         version = "9.0.0";
@@ -58,6 +58,7 @@ in rec {
     wrapCCWith = args: pkgs.buildPackages.wrapCCWith (args // {
       stdenvNoCC = utils.stdenvTargetFlags pkgs.buildPackages.stdenvNoCC;
     });
+    preLibcCrossHeaders = patchMingwLibc pkgs.preLibcCrossHeaders;
     wrapBintoolsWith =
       { libc ?
         if pkgs.buildPackages.stdenv.targetPlatform != pkgs.buildPackages.stdenv.hostPlatform
