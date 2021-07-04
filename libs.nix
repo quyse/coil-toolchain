@@ -25,6 +25,40 @@ in rec {
         # disarm strange RANLIB line
         postFixup = builtins.replaceStrings ["$RANLIB"] ["true"] (attrs.postFixup or "");
       });
+      openssl = (super.openssl.override overrides).overrideAttrs (attrs: {
+        # https://github.com/openssl/openssl/blob/master/INSTALL.md
+        configureFlags = self.lib.filter (x: x != "shared") attrs.configureFlags ++ [
+          "no-dso"
+          "no-engine"
+          "no-stdio"
+        ];
+        patches = []; # assuming all patches are about CA paths
+        postInstall = ''
+          touch $out/bin/c_rehash # fake file for postInstall to not break
+        '' + (attrs.postInstall or "") + ''
+          rm $bin/bin/c_rehash # remove fake file (moved since)
+        '';
+      });
+      curl = (super.curlMinimal.override (overrides // {
+        inherit openssl zlib;
+        http2Support = false;
+        idnSupport = false;
+        scpSupport = false;
+        gssSupport = false;
+        brotliSupport = false;
+      })).overrideAttrs (attrs: {
+        configureFlags =
+        (if stdenv.hostPlatform.isWindows
+          then self.lib.filter (x: !(self.lib.hasPrefix "--with-ssl=" x)) attrs.configureFlags ++ ["--with-winssl"]
+          else attrs.configureFlags
+        ) ++
+        [
+          "--disable-shared"
+          "--enable-static"
+        ];
+        # fix linking static openssl
+        LIBS = self.lib.optionalString stdenv.hostPlatform.isLinux "-pthread";
+      });
     };
   };
 }

@@ -29,6 +29,10 @@ stdenv.mkDerivation rec {
 
   outputs = ["out" "man"];
 
+  postInstall = ''
+    if ! [ -f $out/lib/libz.a ]; then ln -s $out/lib/libz{lib,}.a; fi
+  '';
+
   dontDisableStatic = true;
   doCheck = false;
   enableParallelBuilding = true;
