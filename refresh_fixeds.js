@@ -92,6 +92,10 @@ const refreshFetchUrl = async (url, obj) => {
       process.stderr.write(`  Got 301 Moved permanently.\n`);
       fetchUrl = response.headers.location;
       break;
+    case 302:
+      process.stderr.write(`  Got 302 Found.\n`);
+      fetchUrl = response.headers.location;
+      break;
     case 304:
       process.stderr.write(`  Got 304 Not modified.\n`);
       fetching = false;
