@@ -1,4 +1,6 @@
-{ pkgs }:
+{ pkgsFun ? import <nixpkgs>
+, pkgs ? pkgsFun {}
+}:
 rec {
   llvm11 = { ... }@args: import ./llvm11.nix ({
     inherit pkgs utils;
@@ -20,4 +22,28 @@ rec {
   } // args);
 
   fixeds = builtins.fromJSON (builtins.readFile ./fixeds.json);
+
+  pkgsLinuxGlibc = pkgsFun {};
+  pkgsWindowsMingw = pkgsFun {
+    crossSystem = {
+      config = "x86_64-w64-mingw32";
+      libc = "msvcrt";
+    };
+  };
+
+  touch = {
+    llvm11LinuxGlibcCc = (llvm11 {
+      pkgs = pkgsLinuxGlibc;
+    }).stdenv.cc;
+    llvm11WindowsMingwCc = (llvm11 {
+      pkgs = pkgsWindowsMingw;
+    }).stdenv.cc;
+    llvm12LinuxGlibcCc = (llvm12 {
+      pkgs = pkgsLinuxGlibc;
+    }).stdenv.cc;
+    llvm12WindowsMingwCc = (llvm12 {
+      pkgs = pkgsWindowsMingw;
+    }).stdenv.cc;
+    initialDisk = (windows {}).initialDisk {};
+  };
 }
