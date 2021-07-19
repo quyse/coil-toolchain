@@ -39,13 +39,14 @@ in rec {
           rm $bin/bin/c_rehash # remove fake file (moved since)
         '';
       });
+      brotli = super.brotli.override overrides;
       curl = (super.curlMinimal.override (overrides // {
         inherit openssl zlib;
+        zlibSupport = true;
         http2Support = false;
         idnSupport = false;
         scpSupport = false;
         gssSupport = false;
-        brotliSupport = false;
       })).overrideAttrs (attrs: {
         configureFlags =
         (if stdenv.hostPlatform.isWindows

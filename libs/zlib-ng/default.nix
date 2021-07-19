@@ -27,7 +27,7 @@ stdenv.mkDerivation rec {
 
   patches = [./no-rc.patch ./no-icc.patch];
 
-  outputs = ["out" "man"];
+  outputs = ["out" "dev" "man"];
 
   postInstall = ''
     if ! [ -f $out/lib/libz.a ]; then ln -s $out/lib/libz{lib,}.a; fi
