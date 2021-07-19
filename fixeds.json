@@ -1,9 +1,14 @@
 {
   "fetchgit": {
     "https://github.com/chef/bento.git": {
-      "rev": "bae65568b9e395a2e19d0d594687eca999391eb9",
-      "sha256": "1d77kz6wnp1rkf2qvn3saxrj1njjzqfxx3hnkyr72ng3im56k82i",
+      "rev": "1c7d68007f4def1a40c0147ab8c2a68a6e6c69dc",
+      "sha256": "0iiba5jmvfk02hxpqvg7fbm1izmxmymgqyk58gdl5z4qd1ixslgq",
       "url": "https://github.com/chef/bento.git"
+    },
+    "https://github.com/wheybags/glibc_version_header.git": {
+      "rev": "60d54829f34f21dc440126ad5630e6a9789a48b2",
+      "sha256": "1zh2zv2z0xaqq27236hrinqdazddvqzg15fsy18pdmk90ifiz20w",
+      "url": "https://github.com/wheybags/glibc_version_header.git"
     }
   },
   "fetchurl": {

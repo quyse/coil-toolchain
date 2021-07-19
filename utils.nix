@@ -1,4 +1,6 @@
-{ pkgs }:
+{ pkgs
+, fixeds
+}:
 rec {
   stdenvHostFlags = stdenv: stdenv.override {
     hostPlatform = stdenv.hostPlatform // {
@@ -38,11 +40,8 @@ rec {
 
   # stdenv adapter, forcing glibc version
   stdenvForceGlibcVersion = { arch, version }: let
-    repo = pkgs.fetchFromGitHub {
-      owner = "wheybags";
-      repo = "glibc_version_header";
-      rev = "60d54829f34f21dc440126ad5630e6a9789a48b2";
-      sha256 = "1zh2zv2z0xaqq27236hrinqdazddvqzg15fsy18pdmk90ifiz20w";
+    repo = pkgs.fetchgit {
+      inherit (fixeds.fetchgit."https://github.com/wheybags/glibc_version_header.git") url rev sha256;
     };
     libcxxForceGlibcVersionHeader = pkgs.writeText "libcxx_force_glibc_version.h" ''
       #define _LIBCPP_GLIBC_PREREQ(a, b) ((${pkgs.lib.versions.major version} << 16) + ${pkgs.lib.versions.minor version} >= ((a) << 16) + (b))

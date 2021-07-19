@@ -14,14 +14,14 @@ rec {
   libs = import ./libs.nix;
 
   utils = import ./utils.nix {
-    inherit pkgs;
+    inherit pkgs fixeds;
   };
 
   windows = { ... }@args: import ./windows ({
     inherit pkgs fixeds;
   } // args);
 
-  fixeds = builtins.fromJSON (builtins.readFile ./fixeds.json);
+  fixeds = pkgs.lib.importJSON ./fixeds.json;
 
   pkgsLinuxGlibc = pkgsFun {};
   pkgsWindowsMingw = pkgsFun {
