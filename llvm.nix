@@ -24,6 +24,21 @@ let
     in mingw_w64
     else libc;
 
+  stdenvHostFlags = stdenv: stdenv.override {
+    hostPlatform = stdenv.hostPlatform // {
+      useLLVM = true;
+      linker = "lld";
+      isStatic = true;
+    };
+  };
+  stdenvTargetFlags = stdenv: stdenv.override {
+    targetPlatform = stdenv.targetPlatform // {
+      useLLVM = true;
+      linker = "lld";
+      isStatic = true;
+    };
+  };
+
 in rec {
   hostLibraries = (pkgs."llvmPackages_${llvmVersion}".override {
     stdenv = hostStdenv;
@@ -64,7 +79,7 @@ in rec {
     stdenv = buildStdenv;
     targetLlvmLibraries = hostLibraries;
     wrapCCWith = args: pkgs.buildPackages.wrapCCWith (args // {
-      stdenvNoCC = utils.stdenvTargetFlags pkgs.buildPackages.stdenvNoCC;
+      stdenvNoCC = stdenvTargetFlags pkgs.buildPackages.stdenvNoCC;
     });
     preLibcCrossHeaders = patchMingwLibc pkgs.preLibcCrossHeaders;
     wrapBintoolsWith =
@@ -75,7 +90,7 @@ in rec {
       , ...
       } @ args:
       pkgs.buildPackages.wrapBintoolsWith (args // {
-        stdenvNoCC = utils.stdenvTargetFlags pkgs.buildPackages.stdenvNoCC;
+        stdenvNoCC = stdenvTargetFlags pkgs.buildPackages.stdenvNoCC;
         inherit libc;
       });
   }).tools.extend (self: super: {
@@ -88,11 +103,11 @@ in rec {
 
   hostStdenv = pkgs.lib.pipe (pkgs.overrideCC pkgs.stdenv buildTools.clangUseLLVM) [
     utils.stdenvFunctionSections
-    utils.stdenvHostFlags
+    stdenvHostFlags
     utils.stdenvPlatformFixes
     pkgs.stdenvAdapters.propagateBuildInputs
     hostStdenvAdapter
   ];
-  buildStdenv = utils.stdenvTargetFlags pkgs.buildPackages.stdenv;
+  buildStdenv = stdenvTargetFlags pkgs.buildPackages.stdenv;
   stdenv = hostStdenv;
 }

@@ -2,26 +2,11 @@
 , fixeds
 }:
 rec {
-  stdenvHostFlags = stdenv: stdenv.override {
-    hostPlatform = stdenv.hostPlatform // {
-      useLLVM = true;
-      linker = "lld";
-      isStatic = true;
-    };
-  };
-  stdenvTargetFlags = stdenv: stdenv.override {
-    targetPlatform = stdenv.targetPlatform // {
-      useLLVM = true;
-      linker = "lld";
-      isStatic = true;
-    };
-  };
-
   stdenvPlatformFixes = stdenv:
     stdenv.overrideDerivation (s: s // {
       mkDerivation = args: s.mkDerivation (args // {
         hardeningDisable = if s.hostPlatform.isWindows then ["all"] else args.hardeningDisable or [];
-      } // (if s.hostPlatform.isWindows && s.hostPlatform.useLLVM then {
+      } // (if s.hostPlatform.isWindows && s.hostPlatform.useLLVM or false then {
         RC = "${stdenv.cc.bintools.targetPrefix}llvm-rc";
       } else {}));
     });

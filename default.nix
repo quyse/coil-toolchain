@@ -13,6 +13,10 @@ rec {
 
   llvm = llvm12;
 
+  gcc = { ... }@args: import ./gcc.nix ({
+    inherit pkgs utils;
+  } // args);
+
   libs = import ./libs.nix;
 
   utils = import ./utils.nix {
@@ -44,6 +48,12 @@ rec {
       pkgs = pkgsLinuxGlibc;
     }).stdenv.cc;
     llvm12WindowsMingwCc = (llvm12 {
+      pkgs = pkgsWindowsMingw;
+    }).stdenv.cc;
+    gccLinuxGlibcCc = (gcc {
+      pkgs = pkgsLinuxGlibc;
+    }).stdenv.cc;
+    gccWindowsMingwCc = (gcc {
       pkgs = pkgsWindowsMingw;
     }).stdenv.cc;
     initialDisk = (windows {}).initialDisk {};
