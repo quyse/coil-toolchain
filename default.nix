@@ -2,11 +2,13 @@
 , pkgs ? pkgsFun {}
 }:
 rec {
-  llvm11 = { ... }@args: import ./llvm11.nix ({
+  llvm11 = { ... }@args: import ./llvm.nix ({
     inherit pkgs utils;
+    llvmVersion = "11";
   } // args);
-  llvm12 = { ... }@args: import ./llvm12.nix ({
+  llvm12 = { ... }@args: import ./llvm.nix ({
     inherit pkgs utils;
+    llvmVersion = "12";
   } // args);
 
   llvm = llvm12;

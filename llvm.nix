@@ -1,6 +1,7 @@
 { pkgs
 , utils
 , hostStdenvAdapter ? pkgs.lib.id
+, llvmVersion
 }:
 let
   patchMingwLibc = libc: if libc != null && pkgs.lib.hasPrefix "mingw-w64" libc.name
@@ -24,7 +25,7 @@ let
     else libc;
 
 in rec {
-  hostLibraries = (pkgs.llvmPackages_12.override {
+  hostLibraries = (pkgs."llvmPackages_${llvmVersion}".override {
     stdenv = hostStdenv;
     buildLlvmTools = buildTools;
   }).libraries.extend (self: super: {
@@ -39,7 +40,9 @@ in rec {
         "-DLIBCXX_HERMETIC_STATIC_LIBRARY=ON"
       ];
       NIX_CFLAGS_COMPILE = if self.stdenv.hostPlatform.isWindows then "-D_WIN32_WINNT=0x0600" else null;
-      patches = (attrs.patches or []) ++ [./libs/libcxx12/override-glibc-prereq.patch];
+      patches = (attrs.patches or []) ++ [
+        (./. + "/libs/libcxx${llvmVersion}/override-glibc-prereq.patch")
+      ];
     });
     libcxxabi = super.libcxxabi.overrideAttrs (attrs: {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
@@ -57,7 +60,7 @@ in rec {
     });
   });
 
-  buildTools = (pkgs.buildPackages.llvmPackages_12.override {
+  buildTools = (pkgs.buildPackages."llvmPackages_${llvmVersion}".override {
     stdenv = buildStdenv;
     targetLlvmLibraries = hostLibraries;
     wrapCCWith = args: pkgs.buildPackages.wrapCCWith (args // {
@@ -77,7 +80,9 @@ in rec {
       });
   }).tools.extend (self: super: {
     clang-unwrapped = super.clang-unwrapped.overrideAttrs (attrs: {
-      patches = (attrs.patches or []) ++ [./libs/clang12/static-libunwind.patch];
+      patches = (attrs.patches or []) ++ [
+        (./. + "/libs/clang${llvmVersion}/static-libunwind.patch")
+      ];
     });
   });
 
