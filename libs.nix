@@ -10,13 +10,18 @@ in rec {
       expat = super.expat.override overrides;
       zlib = self.callPackage ./libs/zlib-ng overrides;
       bzip2 = super.bzip2.override overrides;
+      libiconv = (super.libiconvReal.override overrides).overrideAttrs (attrs: {
+        postPatch = ''
+          sed -ie 's?OBJECTS_RES_yes = iconv.res?OBJECTS_RES_yes =?' src/Makefile.in
+          sed -ie 's?OBJECTS_RES_yes = libiconv.res.lo?OBJECTS_RES_yes =?' lib/Makefile.in
+        '';
+      });
       icu = super.icu.override overrides;
-      # TODO: libiconv for boost
       boost = (super.boost17x.override (overrides // {
         enableShared = false;
         enableStatic = true;
         toolset = null;
-        inherit expat zlib bzip2 icu;
+        inherit expat zlib bzip2 libiconv icu;
       })).overrideAttrs (attrs: {
         patches = (attrs.patches or [])
           ++ self.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [./libs/boost/cross.patch]
