@@ -16,7 +16,7 @@
 stdenvNoCC.mkDerivation {
   inherit name outputHashMode outputHashAlgo outputHash;
 
-  nativeBuildInputs = [curl nodejs];
+  nativeBuildInputs = [curl nodejs cacert];
 
   buildCommand = ''
     echo "''${${netrcVar}}" > .netrc
