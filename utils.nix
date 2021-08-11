@@ -69,8 +69,8 @@ rec {
 
   fetchGitLfs =
     { repoUrl
-    , netrcVar ? "GIT_LFS_NETRC"
     , ref ? null
+    , netrcVar ? "GIT_LFS_NETRC"
     }: pointer: let
     info = pkgs.lib.pipe pointer [
       builtins.readFile
@@ -82,42 +82,10 @@ rec {
       (o: assert (o.version == "https://git-lfs.github.com/spec/v1"); o)
     ];
     oidParsed = builtins.match "([a-z0-9]+):(.+)" info.oid;
-    oidHashAlgo = builtins.elemAt oidParsed 0;
-    oidHash = builtins.elemAt oidParsed 1;
-  in pkgs.stdenvNoCC.mkDerivation {
-    name = pkgs.lib.strings.sanitizeDerivationName (baseNameOf pointer);
-
-    outputHashMode = "flat";
-    outputHashAlgo = oidHashAlgo;
-    outputHash = oidHash;
-
-    buildCommand = ''
-      echo "''${${netrcVar}}" > .netrc
-      echo -n '${pkgs.curl}/bin/curl -fLo $out ' > fetch.sh
-      ${pkgs.curl}/bin/curl -fL --netrc-file .netrc \
-        -H 'Content-Type: application/vnd.git-lfs+json' \
-        -d ${pkgs.lib.escapeShellArg (builtins.toJSON ({
-          operation = "download";
-          transfers = ["basic"];
-          objects = [{
-            oid = oidHash;
-            inherit (info) size;
-          }];
-        } // pkgs.lib.optionalAttrs (ref != null) {
-          ref = {
-            name = ref;
-          };
-        }))} \
-        ${pkgs.lib.escapeShellArg repoUrl}/info/lfs/objects/batch \
-        | ${pkgs.nodejs}/bin/node ${./git_lfs_fetcher.js} \
-        >> fetch.sh
-      . fetch.sh
-    '';
-
-    SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-
-    impureEnvVars = pkgs.lib.fetchers.proxyImpureEnvVars ++ [
-      netrcVar
-    ];
+    outputHashAlgo = builtins.elemAt oidParsed 0;
+    outputHash = builtins.elemAt oidParsed 1;
+  in pkgs.callPackage ./utils/fetchgitlfs.nix {
+    inherit pointer repoUrl ref netrcVar outputHashAlgo outputHash;
+    inherit (info) size;
   };
 }
