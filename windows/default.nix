@@ -2,7 +2,9 @@
 , fixeds
 }: let
 
-windows = rec {
+  inherit (pkgs) lib;
+
+in rec {
   qemu = pkgs.qemu_kvm;
   libguestfs = pkgs.libguestfs-with-appliance.override {
     inherit qemu; # no need to use full qemu
@@ -34,12 +36,12 @@ windows = rec {
         part-disk /dev/disk/guestfs/extraMount mbr : \
         part-set-mbr-id /dev/disk/guestfs/extraMount 1 07 : \
         mkfs ntfs /dev/disk/guestfs/extraMount1'';
-    extraMountArg = pkgs.lib.escapeShellArg extraMount;
+    extraMountArg = lib.escapeShellArg extraMount;
     script = ''
       export HOME="$(mktemp -d)" # fix warning by guestfish
       echo 'Executing beforeScript...'
       ${beforeScript}
-      ${pkgs.lib.optionalString (extraMount != null) (
+      ${lib.optionalString (extraMount != null) (
         if extraMountIn then ''
           echo 'Copying extra mount data in...'
           tar -C ${extraMountArg} -c --dereference . | ${guestfishCmd} : \
@@ -57,8 +59,8 @@ windows = rec {
         inherit disk iso provisioners headless;
         extraDisk = if extraMount != null then "extraMount.img" else null;
       }}
-      ${pkgs.lib.optionalString (extraMount != null) ''
-        ${pkgs.lib.optionalString extraMountOut ''
+      ${lib.optionalString (extraMount != null) ''
+        ${lib.optionalString extraMountOut ''
           echo 'Copying extra mount data out...'
           mkdir ${extraMountArg}
           ${libguestfs}/bin/guestfish \
@@ -75,10 +77,10 @@ windows = rec {
     '';
     env = {
       requiredSystemFeatures = ["kvm"];
-    } // (pkgs.lib.optionalAttrs (outputHash != null) {
+    } // (lib.optionalAttrs (outputHash != null) {
       inherit outputHash outputHashAlgo outputHashMode;
     })
-    // (pkgs.lib.optionalAttrs (meta != null) {
+    // (lib.optionalAttrs (meta != null) {
       inherit meta;
     });
   in (if run then pkgs.runCommand name env else pkgs.writeScript "${name}.sh") script;
@@ -89,7 +91,7 @@ windows = rec {
       inherit version;
     };
     meta = {
-      license = pkgs.lib.licenses.unfree;
+      license = lib.licenses.unfree;
     };
   };
 
@@ -125,14 +127,14 @@ windows = rec {
             [ "-drive" "file=${output_directory}/packer-qemu,if=virtio,cache=unsafe,discard=unmap,detect-zeroes=unmap,format=qcow2,index=0" ]
           ] ++
           # cdroms
-          pkgs.lib.optionals (disk == null && iso != null) [
+          lib.optionals (disk == null && iso != null) [
             # main cdrom
             [ "-drive" "file=${iso.iso},media=cdrom,index=1" ]
             # virtio-win cdrom
             [ "-drive" "file=${virtio_win_iso},media=cdrom,index=2" ]
           ] ++
           # extra hdd
-          pkgs.lib.optional (extraDisk != null) [ "-drive" "file=${extraDisk},if=virtio,cache=unsafe,discard=unmap,detect-zeroes=unmap,format=qcow2,index=3" ];
+          lib.optional (extraDisk != null) [ "-drive" "file=${extraDisk},if=virtio,cache=unsafe,discard=unmap,detect-zeroes=unmap,format=qcow2,index=3" ];
         }
         // (if disk != null then {
           inherit disk_size;
@@ -149,7 +151,7 @@ windows = rec {
         } else {})
       )];
       provisioners =
-        pkgs.lib.optional (extraDisk != null) {
+        lib.optional (extraDisk != null) {
           type = "powershell";
           inline = [
             "Set-Disk -Number 1 -IsOffline $False"
@@ -178,7 +180,7 @@ windows = rec {
       url = templateJson.variables.iso_url;
       sha1 = checksum;
       meta = {
-        license = pkgs.lib.licenses.unfree;
+        license = lib.licenses.unfree;
       };
     };
     checksum = templateJson.variables.iso_checksum;
@@ -216,7 +218,7 @@ windows = rec {
     '' else ''
 
       [${keyName}]
-      ${builtins.concatStringsSep "" (pkgs.lib.mapAttrsToList valueAction keyValues)}'';
+      ${builtins.concatStringsSep "" (lib.mapAttrsToList valueAction keyValues)}'';
     valueAction = valueName: valueValue: ''
       ${if valueName == "" then "@" else builtins.toJSON(valueName)}=${{
         int = "dword:${toString(valueValue)}";
@@ -227,7 +229,7 @@ windows = rec {
     '';
   in pkgs.writeText name ''
     Windows Registry Editor Version 5.00
-    ${builtins.concatStringsSep "" (pkgs.lib.mapAttrsToList keyAction keys)}
+    ${builtins.concatStringsSep "" (lib.mapAttrsToList keyAction keys)}
   '';
 
   registryProvisioners = registryFile: let
@@ -276,7 +278,7 @@ windows = rec {
   virtio_win_iso = pkgs.fetchurl {
     inherit (fixeds.fetchurl."https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso") url sha256 name;
     meta = {
-      license = pkgs.lib.licenses.bsd3;
+      license = lib.licenses.bsd3;
     };
   };
 
@@ -291,5 +293,4 @@ windows = rec {
   # convert list of unix-style paths to windows-style PATH var
   # paths must be pre-shell-escaped if needed
   makeWinePaths = paths: builtins.concatStringsSep ";" (map (path: "$(winepath -w ${path})") paths);
-};
-in windows
+}
