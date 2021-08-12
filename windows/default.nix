@@ -97,6 +97,7 @@ windows = rec {
     , cpus ? 1
     , memory ? 4096
     , disk ? null
+    , disk_size ? "256G"
     , iso ? null
     , output_directory ? "build"
     , provisioners
@@ -133,12 +134,14 @@ windows = rec {
           pkgs.lib.optional (extraDisk != null) [ "-drive" "file=${extraDisk},if=virtio,cache=unsafe,discard=unmap,detect-zeroes=unmap,format=qcow2,index=3" ];
         }
         // (if disk != null then {
+          inherit disk_size;
           disk_image = true;
           use_backing_file = true;
           iso_url = disk;
           iso_checksum = "none";
           skip_resize_disk = true;
         } else if iso != null then {
+          inherit disk_size;
           iso_url = iso.iso;
           iso_checksum = iso.checksum;
           floppy_files = [iso.autounattend];
