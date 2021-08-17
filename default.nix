@@ -30,6 +30,11 @@ rec {
   fixeds = pkgs.lib.importJSON ./fixeds.json;
 
   pkgsLinuxGlibc = pkgsFun {};
+  pkgsLinuxMusl = pkgsFun {
+    crossSystem = {
+      config = "x86_64-unknown-linux-musl";
+    };
+  };
   pkgsWindowsMingw = pkgsFun {
     crossSystem = {
       config = "x86_64-w64-mingw32";
@@ -41,11 +46,17 @@ rec {
     llvm11LinuxGlibcCc = (llvm11 {
       pkgs = pkgsLinuxGlibc;
     }).stdenv.cc;
+    llvm11LinuxMuslCc = (llvm11 {
+      pkgs = pkgsLinuxMusl;
+    }).stdenv.cc;
     llvm11WindowsMingwCc = (llvm11 {
       pkgs = pkgsWindowsMingw;
     }).stdenv.cc;
     llvm12LinuxGlibcCc = (llvm12 {
       pkgs = pkgsLinuxGlibc;
+    }).stdenv.cc;
+    llvm12LinuxMuslCc = (llvm12 {
+      pkgs = pkgsLinuxMusl;
     }).stdenv.cc;
     llvm12WindowsMingwCc = (llvm12 {
       pkgs = pkgsWindowsMingw;
