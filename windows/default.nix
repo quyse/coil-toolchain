@@ -166,7 +166,7 @@ in rec {
 
   # using bento as a maintained source of .iso URLs/checksums and autounattend scripts
   bento = pkgs.fetchgit {
-    inherit (fixeds.fetchgit."https://github.com/chef/bento.git") url rev sha256;
+    inherit (fixeds.fetchgit."https://github.com/chef/bento.git#main") url rev sha256;
   };
 
   windowsInstallIso = { version }: let
