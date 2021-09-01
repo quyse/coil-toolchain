@@ -10,6 +10,10 @@ rec {
     inherit pkgs utils;
     llvmVersion = "12";
   } // args);
+  llvm13 = { ... }@args: import ./llvm.nix ({
+    inherit pkgs utils;
+    llvmVersion = "13";
+  } // args);
 
   llvm = llvm12;
 
@@ -83,6 +87,15 @@ rec {
       pkgs = pkgsLinuxMusl;
     });
     llvm12WindowsMingw = mkDummy (llvm12 {
+      pkgs = pkgsWindowsMingw;
+    });
+    llvm13LinuxGlibc = mkDummy (llvm13 {
+      pkgs = pkgsLinuxGlibc;
+    });
+    llvm13LinuxMusl = mkDummy (llvm13 {
+      pkgs = pkgsLinuxMusl;
+    });
+    llvm13WindowsMingw = mkDummy (llvm13 {
       pkgs = pkgsWindowsMingw;
     });
     gccLinuxGlibc = mkDummy (gcc {

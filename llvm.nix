@@ -48,6 +48,7 @@ in rec {
     compiler-rt = super.compiler-rt.overrideAttrs (attrs: {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
         "-DCOMPILER_RT_BUILD_MEMPROF=OFF" # fails for some reason
+        "-DCOMPILER_RT_BUILD_ORC=OFF" # fails for some reason
       ];
     });
     libcxx = super.libcxx.overrideAttrs (attrs: {
