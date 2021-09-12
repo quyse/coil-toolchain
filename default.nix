@@ -42,31 +42,40 @@ rec {
     };
   };
 
+  mkDummy = pkgs: pkgs.stdenv.mkDerivation {
+    name = "dummy";
+    phases = ["buildPhase"];
+    buildPhase = ''
+      touch $out
+    '';
+  };
+
   touch = {
-    llvm11LinuxGlibcCc = (llvm11 {
+    llvm11LinuxGlibc = mkDummy (llvm11 {
       pkgs = pkgsLinuxGlibc;
-    }).stdenv.cc;
-    llvm11LinuxMuslCc = (llvm11 {
+    });
+    llvm11LinuxMusl = mkDummy (llvm11 {
       pkgs = pkgsLinuxMusl;
-    }).stdenv.cc;
-    llvm11WindowsMingwCc = (llvm11 {
+    });
+    llvm11WindowsMingw = mkDummy (llvm11 {
       pkgs = pkgsWindowsMingw;
-    }).stdenv.cc;
-    llvm12LinuxGlibcCc = (llvm12 {
+    });
+    llvm12LinuxGlibc = mkDummy (llvm12 {
       pkgs = pkgsLinuxGlibc;
-    }).stdenv.cc;
-    llvm12LinuxMuslCc = (llvm12 {
+    });
+    llvm12LinuxMusl = mkDummy (llvm12 {
       pkgs = pkgsLinuxMusl;
-    }).stdenv.cc;
-    llvm12WindowsMingwCc = (llvm12 {
+    });
+    llvm12WindowsMingw = mkDummy (llvm12 {
       pkgs = pkgsWindowsMingw;
-    }).stdenv.cc;
-    gccLinuxGlibcCc = (gcc {
+    });
+    gccLinuxGlibc = mkDummy (gcc {
       pkgs = pkgsLinuxGlibc;
-    }).stdenv.cc;
-    gccWindowsMingwCc = (gcc {
+    });
+    gccWindowsMingw = mkDummy (gcc {
       pkgs = pkgsWindowsMingw;
-    }).stdenv.cc;
+    });
+
     initialDisk = (windows {}).initialDisk {};
   };
 }
