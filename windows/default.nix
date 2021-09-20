@@ -147,7 +147,10 @@ in rec {
           inherit disk_size;
           iso_url = iso.iso;
           iso_checksum = iso.checksum;
-          floppy_files = [iso.autounattend];
+          floppy_files = ["${pkgs.runCommand "autounattend-dir" {} ''
+            mkdir $out
+            cp ${iso.autounattend} $out/Autounattend.xml
+          ''}/Autounattend.xml"];
         } else {})
       )];
       provisioners =
@@ -164,29 +167,20 @@ in rec {
       };
     });
 
-  # using bento as a maintained source of .iso URLs/checksums and autounattend scripts
-  bento = pkgs.fetchgit {
-    inherit (fixeds.fetchgit."https://github.com/chef/bento.git#main") url rev sha256;
-  };
-
-  windowsInstallIso = { version }: let
-    templateDir = "packer_templates/windows";
-    templateFile = "${bento}/${templateDir}/windows-${version}.json";
-    autounattendFile = "${bento}/${templateDir}/answer_files/${version}/Autounattend.xml";
-    # parse template file
-    templateJson = builtins.fromJSON (builtins.readFile templateFile);
-    # extract ISO url and download it ourselves
+  windowsInstallIso = { version }: {
     iso = pkgs.fetchurl {
-      url = templateJson.variables.iso_url;
-      sha1 = checksum;
+      inherit (fixeds.fetchurl."${{
+        "2019" = "https://software-download.microsoft.com/download/pr/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso";
+        "2022" = "https://software-download.microsoft.com/download/sg/20348.169.210806-2348.fe_release_svc_refresh_SERVER_EVAL_x64FRE_en-us.iso";
+      }."${version}"}") url sha256 name;
       meta = {
         license = lib.licenses.unfree;
       };
     };
-    checksum = templateJson.variables.iso_checksum;
-  in {
-    inherit iso checksum;
-    autounattend = autounattendFile;
+    checksum = "none";
+    autounattend = pkgs.fetchurl {
+      inherit (fixeds.fetchurl."https://raw.githubusercontent.com/chef/bento/main/packer_templates/windows/answer_files/${version}/Autounattend.xml") url sha256 name;
+    };
   };
 
   packerInitialProvisioners =

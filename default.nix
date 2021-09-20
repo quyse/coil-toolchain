@@ -48,10 +48,15 @@ rec {
 
   autoUpdateFixedsScript = fixedsFile: pkgs.writeScript "auto_update_fixeds" ''
     set -e
-    cp ${fixedsFile} ./fixeds.json
+    cp --no-preserve=mode ${fixedsFile} ./fixeds.json
     ${refreshFixedsScript}
-    cmp -s ${fixedsFile} ./fixeds.json || echo 'update fixeds' > .git-commit
+    if ! cmp -s ${fixedsFile} ./fixeds.json
+    then
+      echo 'update fixeds' > .git-commit
+    fi
   '';
+
+  autoUpdateScript = autoUpdateFixedsScript ./fixeds.json;
 
   mkDummy = pkgs: pkgs.stdenv.mkDerivation {
     name = "dummy";
@@ -89,6 +94,6 @@ rec {
 
     initialDisk = (windows {}).initialDisk {};
 
-    inherit refreshFixedsScript;
+    inherit refreshFixedsScript autoUpdateScript;
   };
 }
