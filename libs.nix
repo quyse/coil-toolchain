@@ -20,7 +20,6 @@ in rec {
       boost = (super.boost17x.override (overrides // {
         enableShared = false;
         enableStatic = true;
-        toolset = null;
         inherit expat zlib bzip2 libiconv icu;
       })).overrideAttrs (attrs: {
         patches = (attrs.patches or [])
