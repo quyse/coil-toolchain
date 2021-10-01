@@ -1,4 +1,5 @@
 { pkgs
+, lib ? pkgs.lib
 , fixeds
 }:
 rec {
@@ -88,4 +89,8 @@ rec {
     inherit pointer repoUrl ref netrcVar outputHashAlgo outputHash;
     inherit (info) size;
   };
+
+  inherit (import ./utils/stuff.nix {
+    inherit pkgs lib;
+  }) stuffd fetchStuff;
 }

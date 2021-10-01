@@ -94,6 +94,10 @@ rec {
 
     initialDisk = (windows {}).initialDisk {};
 
+    stuffd = utils.stuffd {
+      handlers = [];
+    };
+
     inherit refreshFixedsScript autoUpdateScript;
   };
 }
