@@ -30,15 +30,15 @@ rec {
       inherit (fixeds.fetchgit."https://github.com/wheybags/glibc_version_header.git") url rev sha256;
     };
     libcxxForceGlibcVersionHeader = pkgs.writeText "libcxx_force_glibc_version.h" ''
-      #define _LIBCPP_GLIBC_PREREQ(a, b) ((${pkgs.lib.versions.major version} << 16) + ${pkgs.lib.versions.minor version} >= ((a) << 16) + (b))
+      #define _LIBCPP_GLIBC_PREREQ(a, b) ((${lib.versions.major version} << 16) + ${lib.versions.minor version} >= ((a) << 16) + (b))
     '';
   in stdenv:
     stdenv.overrideDerivation (s: s // {
       mkDerivation = args: s.mkDerivation (args // {
         NIX_CFLAGS_COMPILE =
-          "${toString (args.NIX_CFLAGS_COMPILE or "")} " +
-          "-include ${repo}/version_headers/${arch}/force_link_glibc_${version}.h " +
-          "-include ${libcxxForceGlibcVersionHeader}";
+          "${toString (args.NIX_CFLAGS_COMPILE or "")}" +
+          " -include ${repo}/version_headers/${arch}/force_link_glibc_${version}.h" +
+          " -include ${libcxxForceGlibcVersionHeader}";
       });
     });
 
@@ -58,28 +58,28 @@ rec {
       "ubuntu-16.04" = minGlibc "2.23";
       "ubuntu-18.04" = minGlibc "2.27";
     }.${req} or (abort "unknown compatibility requirement: ${req}");
-    deps = pkgs.lib.foldr f {} reqs;
+    deps = lib.foldr f {} reqs;
     glibcReq = deps.glibc or null;
     glibcAdapter = stdenvForceGlibcVersion {
       arch = if stdenv.hostPlatform.isx86_64 then "x64" else "x86";
       version = glibcReq;
     };
     adapters =
-      pkgs.lib.optional (stdenv.hostPlatform.libc == "glibc" && stdenv.hostPlatform.isx86 && glibcReq != null) glibcAdapter;
-  in pkgs.lib.pipe stdenv adapters;
+      lib.optional (stdenv.hostPlatform.libc == "glibc" && stdenv.hostPlatform.isx86 && glibcReq != null) glibcAdapter;
+  in lib.pipe stdenv adapters;
 
   fetchGitLfs =
     { repoUrl
     , ref ? null
     , netrcVar ? "GIT_LFS_NETRC"
     }: pointer: let
-    info = pkgs.lib.pipe pointer [
+    info = lib.pipe pointer [
       builtins.readFile
-      (pkgs.lib.splitString "\n")
+      (lib.splitString "\n")
       (map (builtins.match "([a-z0-9.-]+) (.+)"))
       (builtins.filter (re: re != null))
-      (map (re: pkgs.lib.nameValuePair (builtins.elemAt re 0) (builtins.elemAt re 1)))
-      pkgs.lib.listToAttrs
+      (map (re: lib.nameValuePair (builtins.elemAt re 0) (builtins.elemAt re 1)))
+      lib.listToAttrs
       (o: assert (o.version == "https://git-lfs.github.com/spec/v1"); o)
     ];
     oidParsed = builtins.match "([a-z0-9]+):(.+)" info.oid;

@@ -212,7 +212,7 @@ in rec {
     '' else ''
 
       [${keyName}]
-      ${builtins.concatStringsSep "" (lib.mapAttrsToList valueAction keyValues)}'';
+      ${lib.concatStrings (lib.mapAttrsToList valueAction keyValues)}'';
     valueAction = valueName: valueValue: ''
       ${if valueName == "" then "@" else builtins.toJSON(valueName)}=${{
         int = "dword:${toString(valueValue)}";
@@ -223,11 +223,11 @@ in rec {
     '';
   in pkgs.writeText name ''
     Windows Registry Editor Version 5.00
-    ${builtins.concatStringsSep "" (lib.mapAttrsToList keyAction keys)}
+    ${lib.concatStrings (lib.mapAttrsToList keyAction keys)}
   '';
 
   registryProvisioners = registryFile: let
-    destPath = "C:\\Windows\\Temp\\${baseNameOf registryFile}";
+    destPath = ''C:\Windows\Temp\${baseNameOf registryFile}'';
   in [
     {
       type = "file";
@@ -280,7 +280,7 @@ in rec {
 
   initWinePrefix = ''
     mkdir .wineprefix
-    export WINEPREFIX=$(readlink -f .wineprefix) WINEDEBUG=-all
+    export WINEPREFIX="$(readlink -f .wineprefix)" WINEDEBUG=-all
     winecfg
   '';
 
