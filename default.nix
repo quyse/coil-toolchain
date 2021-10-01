@@ -92,9 +92,9 @@ rec {
     llvm13LinuxGlibc = mkDummy (llvm13 {
       pkgs = pkgsLinuxGlibc;
     });
-    llvm13LinuxMusl = mkDummy (llvm13 {
-      pkgs = pkgsLinuxMusl;
-    });
+    # llvm13LinuxMusl = mkDummy (llvm13 {
+    #   pkgs = pkgsLinuxMusl;
+    # });
     llvm13WindowsMingw = mkDummy (llvm13 {
       pkgs = pkgsWindowsMingw;
     });
