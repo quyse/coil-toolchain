@@ -140,6 +140,10 @@ in rec {
           inherit disk_size;
           disk_image = true;
           use_backing_file = true;
+          # work around https://github.com/hashicorp/packer-plugin-qemu/issues/47
+          qemu_img_args = {
+            create = ["-F" "qcow2"];
+          };
           iso_url = disk;
           iso_checksum = "none";
           skip_resize_disk = true;
