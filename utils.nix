@@ -90,6 +90,10 @@ rec {
     inherit (info) size;
   };
 
+  xml = import ./utils/xml.nix {
+    inherit lib;
+  };
+
   inherit (import ./utils/stuff.nix {
     inherit pkgs lib;
   }) stuffd fetchStuff;
