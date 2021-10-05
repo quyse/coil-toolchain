@@ -21,8 +21,8 @@
       "url": "https://raw.githubusercontent.com/chef/bento/main/packer_templates/windows/answer_files/2019/Autounattend.xml"
     },
     "https://software-download.microsoft.com/download/pr/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso": {
-      "etag": "\"3aefe45846ed51:0\"",
-      "last-modified": "Thu, 19 Sep 2019 00:50:45 GMT",
+      "etag": "\"dcfdff2e8f6ed51:0\"",
+      "last-modified": "Thu, 19 Sep 2019 02:08:52 GMT",
       "name": "17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso",
       "sha256": "1qffl4k6929cx2gck0j3xxw0wcyqmsma68kcps8p45amq13cm6sl",
       "url": "https://software-download.microsoft.com/download/pr/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso"
