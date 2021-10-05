@@ -4,7 +4,7 @@
 
 rec {
   stuffd = { handlers }: pkgs.writeShellScriptBin "stuffd" ''
-    CONFIG="$(mktemp)"
+    CONFIG="$(${pkgs.coreutils}/bin/mktemp)"
     HOST="''${HOST:-127.0.0.1}" PORT="''${PORT:-8080}" ${pkgs.gettext}/bin/envsubst < ${pkgs.writeText "lighttpd.conf" ''
       server.bind = "''${HOST}"
       server.port = ''${PORT}
@@ -27,11 +27,20 @@ rec {
       paths = handlers;
     };
   in pkgs.writeShellScriptBin "stuffdCgiScript" ''
+    set -eu
     cd "$WORKDIR"
+    if [ "''${REQUEST_METHOD}" != "GET" ]
+    then
+      echo 'Content-Type: text/plain'
+      echo 'Status: 405 Method Not Allowed'
+      echo
+      echo "stuffd: method ''${REQUEST_METHOD} not allowed"
+      exit 0
+    fi
     HANDLER=${handlersDir}/"''${HTTP_HOST}"
     if [ -x "$HANDLER" ]
     then
-      URL="''${HTTP_X_STUFF_URL}" "$HANDLER"
+      "$HANDLER" "''${HTTP_X_STUFF_URL}"
     else
       echo 'Content-Type: text/plain'
       echo 'Status: 404 Not Found'
@@ -55,15 +64,11 @@ rec {
     urlHost = builtins.elemAt parsedUrl 0;
   in pkgs.stdenvNoCC.mkDerivation (hashObj // {
     inherit name;
-
     nativeBuildInputs = [pkgs.curl];
-
     buildCommand = ''
       curl -fLo $out -H 'Host: '${lib.escapeShellArg urlHost} -H 'X-Stuff-Url: '${lib.escapeShellArg url} "''${STUFF_URL:?not set}"
     '';
-
     outputHashMode = "flat";
-
     impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
       "STUFF_URL"
     ];
