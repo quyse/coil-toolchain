@@ -113,4 +113,6 @@ rec {
 
     inherit refreshFixedsScript autoUpdateScript;
   };
+
+  path = ./.;
 }
