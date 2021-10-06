@@ -18,7 +18,7 @@ rec {
       cgi.execute-x-only = "enable"
       setenv.add-environment = ("WORKDIR" => env.PWD)
     ''} > "$CONFIG"
-    ${pkgs.lighttpd}/bin/lighttpd -Df "$CONFIG"
+    exec ${pkgs.lighttpd}/bin/lighttpd -Df "$CONFIG"
   '';
 
   stuffdCgiScript = { handlers }: let
