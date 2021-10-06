@@ -40,7 +40,7 @@ rec {
     HANDLER=${handlersDir}/"''${HTTP_HOST}"
     if [ -x "$HANDLER" ]
     then
-      "$HANDLER" "''${HTTP_X_STUFF_URL}"
+      "$HANDLER" "''${HTTP_X_STUFF_URL:-https://''${HTTP_HOST}''${REQUEST_URI}}"
     else
       echo 'Content-Type: text/plain'
       echo 'Status: 404 Not Found'
