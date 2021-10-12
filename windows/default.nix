@@ -280,7 +280,14 @@ in rec {
     };
   };
 
-  wine = (pkgs.winePackagesFor "wine64").minimal;
+  wine = ((pkgs.winePackagesFor "wine64").minimal.override {
+    wineRelease = "unstable";
+  }).overrideAttrs (attrs: {
+    patches = attrs.patches ++ [
+      # https://bugs.winehq.org/show_bug.cgi?id=51869
+      ./wine_replacefile.patch
+    ];
+  });
 
   initWinePrefix = ''
     mkdir .wineprefix
@@ -290,5 +297,5 @@ in rec {
 
   # convert list of unix-style paths to windows-style PATH var
   # paths must be pre-shell-escaped if needed
-  makeWinePaths = paths: builtins.concatStringsSep ";" (map (path: "$(winepath -w ${path})") paths);
+  makeWinePaths = paths: lib.concatStringsSep ";" (map (path: "$(winepath -w ${path})") paths);
 }

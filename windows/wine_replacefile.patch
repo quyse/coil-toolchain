@@ -1,0 +1,15 @@
+diff --git a/dlls/kernelbase/file.c b/dlls/kernelbase/file.c
+index abfdade04ed..9699f765352 100644
+--- a/dlls/kernelbase/file.c
++++ b/dlls/kernelbase/file.c
+@@ -2601,7 +2601,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH ReplaceFileW( const WCHAR *replaced, const WCHAR *
+          * it out of the way first. */
+         WCHAR temp_path[MAX_PATH], temp_file[MAX_PATH];
+ 
+-        lstrcpynW( temp_path, replaced, ARRAY_SIZE( temp_path ) );
++        RtlDosPathNameToNtPathName_U( replaced, &nt_replaced_name, NULL, NULL );
++        lstrcpynW( temp_path, nt_replaced_name.Buffer, ARRAY_SIZE( temp_path ) );
++        RtlFreeUnicodeString(&nt_replaced_name);
+         PathRemoveFileSpecW( temp_path );
+         if (!GetTempFileNameW( temp_path, L"rf", 0, temp_file ) ||
+             !MoveFileExW( replaced, temp_file, MOVEFILE_REPLACE_EXISTING ))
