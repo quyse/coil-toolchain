@@ -54,8 +54,8 @@ const refreshFetchUrl = async (url, obj) => {
     const response = await new Promise((resolve, reject) => {
       process.stderr.write(`  Fetching ${fetchUrl}...\n`);
       const headers = {};
-      if(obj.etag) headers['if-none-match'] = obj.etag;
-      if(obj['last-modified']) headers['if-modified-since'] = obj['last-modified'];
+      if(!obj.ignore_etag && obj.etag) headers['if-none-match'] = obj.etag;
+      if(!obj.ignore_last_modified && obj['last-modified']) headers['if-modified-since'] = obj['last-modified'];
       const request = (fetchUrl.startsWith("https://") ? https : http).request(fetchUrl, {
         method: 'HEAD',
         headers
@@ -77,8 +77,8 @@ const refreshFetchUrl = async (url, obj) => {
       process.stderr.write(`  Got 200 OK.\n`);
       fetching = false;
       record('url', fetchUrl);
-      recordHeader('etag');
-      recordHeader('last-modified');
+      if(!obj.ignore_etag) recordHeader('etag');
+      if(!obj.ignore_last_modified) recordHeader('last-modified');
       record('name', /([^/]+)$/.exec(fetchUrl)[1]);
       if(response.headers['content-disposition']) {
         const a = /^attachment;\s+filename=(.+)$/.exec(response.headers['content-disposition']);
@@ -100,8 +100,8 @@ const refreshFetchUrl = async (url, obj) => {
       process.stderr.write(`  Got 304 Not modified.\n`);
       fetching = false;
       record('url', fetchUrl);
-      recordHeader('etag');
-      recordHeader('last-modified');
+      if(!obj.ignore_etag) recordHeader('etag');
+      if(!obj.ignore_last_modified) recordHeader('last-modified');
       break;
     default:
       throw `Fetching ${url}: bad status ${response.statusCode}`;
