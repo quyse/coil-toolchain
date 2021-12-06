@@ -280,8 +280,9 @@ in rec {
     };
   };
 
-  wine = ((pkgs.winePackagesFor "wine64").minimal.override {
+  wine = ((pkgs.winePackagesFor "wineWow").minimal.override {
     wineRelease = "unstable";
+    embedInstallers = true;
   }).overrideAttrs (attrs: {
     patches = attrs.patches ++ [
       # https://bugs.winehq.org/show_bug.cgi?id=51869
