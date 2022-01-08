@@ -23,7 +23,7 @@ in rec {
         inherit expat zlib bzip2 libiconv icu;
       })).overrideAttrs (attrs: {
         patches = (attrs.patches or [])
-          ++ self.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform && builtins.compareVersions attrs.version "1.77" < 0) [./libs/boost/cross.patch]
+          ++ self.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [(if builtins.compareVersions attrs.version "1.76" >= 0 then ./libs/boost/cross.patch else ./libs/boost/cross-1.75.patch)]
           ++ self.lib.optionals (builtins.compareVersions attrs.version "1.75" < 0) [./libs/boost/libcxx.patch]
         ;
         # disarm strange RANLIB line
