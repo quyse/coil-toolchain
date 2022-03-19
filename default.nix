@@ -15,7 +15,7 @@ rec {
     llvmVersion = "13";
   } // args);
 
-  llvm = llvm12;
+  llvm = llvm13;
 
   gcc = { ... }@args: import ./gcc.nix ({
     inherit pkgs utils;
