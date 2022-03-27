@@ -31,7 +31,7 @@ const refresh = async (fixeds) => {
   {
     const urls = Object.keys(fixeds.fetchurl || {});
     for(let i = 0; i < urls.length; ++i)
-      if(await refreshFetchUrl(urls[i], fixeds.fetchurl[urls[i]]))
+      if(await tryFewTimes(() => refreshFetchUrl(urls[i], fixeds.fetchurl[urls[i]])))
         fetchurlChanged++;
   }
 
@@ -39,7 +39,7 @@ const refresh = async (fixeds) => {
   {
     const urls = Object.keys(fixeds.fetchgit || {});
     for(let i = 0; i < urls.length; ++i)
-      if(await refreshFetchGit(urls[i], fixeds.fetchgit[urls[i]]))
+      if(await tryFewTimes(() => refreshFetchGit(urls[i], fixeds.fetchgit[urls[i]])))
         fetchgitChanged++;
   }
 
@@ -200,6 +200,22 @@ const refreshFetchGit = async (url, obj) => {
 
   // unrecognized
   throw 'Git url ${url} is not supported'
+};
+
+const tryFewTimes = async (action) => {
+  const triesCount = 3, pauseSeconds = 10;
+  for(let i = 0; i < triesCount; ++i) {
+    if(i > 0) {
+      console.log(`pausing for ${pauseSeconds} seconds...`);
+      await new Promise((resolve) => setTimeout(resolve, pauseSeconds * 1000));
+    }
+    try {
+      return await action();
+    } catch(e) {
+      console.log(`error while try ${i + 1}:`, e);
+    }
+  }
+  throw `error after ${triesCount} tries, giving up`;
 };
 
 run();
