@@ -81,7 +81,7 @@ const refreshFetchUrl = async (url, obj) => {
       if(!obj.ignore_last_modified) recordHeader('last-modified');
       record('name', /([^/]+)$/.exec(fetchUrl)[1]);
       if(response.headers['content-disposition']) {
-        const a = /^attachment;\s+filename=(.+)$/.exec(response.headers['content-disposition']);
+        const a = /^attachment;\s+filename=([^;]+)$/.exec(response.headers['content-disposition']);
         if(a) {
           record('name', a[1]);
         }
