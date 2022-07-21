@@ -3,22 +3,16 @@
 , fixeds
 }:
 rec {
-  stdenvPlatformFixes = stdenv:
-    stdenv.overrideDerivation (s: s // {
-      mkDerivation = args: s.mkDerivation (args // {
-        hardeningDisable = if s.hostPlatform.isWindows then ["all"] else args.hardeningDisable or [];
-      } // (if s.hostPlatform.isWindows && s.hostPlatform.useLLVM or false then {
-        RC = "${stdenv.cc.bintools.targetPrefix}llvm-rc";
-      } else {}));
-    });
+  stdenvPlatformFixes = overrideMkDerivation (stdenv: args: {
+    hardeningDisable = if stdenv.hostPlatform.isWindows then ["all"] else args.hardeningDisable or [];
+  } // (if stdenv.hostPlatform.isWindows && stdenv.hostPlatform.useLLVM or false then {
+    RC = "${stdenv.cc.bintools.targetPrefix}llvm-rc";
+  } else {}));
 
-  stdenvFunctionSections = stdenv:
-    stdenv.overrideDerivation (s: s // {
-      mkDerivation = args: s.mkDerivation (args // {
-        NIX_CFLAGS_COMPILE = "${toString (args.NIX_CFLAGS_COMPILE or "")} -ffunction-sections";
-        NIX_LDFLAGS = "${toString (args.NIX_LDFLAGS or "")} --gc-sections";
-      });
-    });
+  stdenvFunctionSections = overrideMkDerivation (stdenv: args: {
+    NIX_CFLAGS_COMPILE = "${toString (args.NIX_CFLAGS_COMPILE or "")} -ffunction-sections";
+    NIX_LDFLAGS = "${toString (args.NIX_LDFLAGS or "")} --gc-sections";
+  });
 
   unNixElf = {
     x86_64 = "patchelf --remove-rpath --set-interpreter /lib64/ld-linux-x86-64.so.2";
@@ -32,14 +26,18 @@ rec {
     libcxxForceGlibcVersionHeader = pkgs.writeText "libcxx_force_glibc_version.h" ''
       #define _LIBCPP_GLIBC_PREREQ(a, b) ((${lib.versions.major version} << 16) + ${lib.versions.minor version} >= ((a) << 16) + (b))
     '';
-  in stdenv:
+  in overrideMkDerivation (stdenv: args: {
+    NIX_CFLAGS_COMPILE =
+      "${toString (args.NIX_CFLAGS_COMPILE or "")}" +
+      " -include ${repo}/version_headers/${arch}/force_link_glibc_${version}.h" +
+      " -include ${libcxxForceGlibcVersionHeader}";
+  });
+
+  overrideMkDerivation = f: stdenv:
     stdenv.overrideDerivation (s: s // {
-      mkDerivation = args: s.mkDerivation (args // {
-        NIX_CFLAGS_COMPILE =
-          "${toString (args.NIX_CFLAGS_COMPILE or "")}" +
-          " -include ${repo}/version_headers/${arch}/force_link_glibc_${version}.h" +
-          " -include ${libcxxForceGlibcVersionHeader}";
-      });
+      mkDerivation = fnOrArgs: if builtins.isFunction fnOrArgs
+        then s.mkDerivation (self: let args = fnOrArgs self; in args // f s args)
+        else s.mkDerivation (fnOrArgs // f s fnOrArgs);
     });
 
   # easy-to-use stdenv adapter for all sorts of compatibility
