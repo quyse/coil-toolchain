@@ -8,11 +8,11 @@
   },
   "fetchurl": {
     "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso": {
-      "etag": "\"1fadd800-5e48b5f3f57af\"",
-      "last-modified": "Sun, 24 Jul 2022 11:28:53 GMT",
-      "name": "virtio-win-0.1.221.iso",
-      "sha256": "1xdcxh03671m5x1ii8paans2bj57v5zsvlixsxjppgi1g4lifs0r",
-      "url": "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.221-1/virtio-win-0.1.221.iso"
+      "etag": "\"1fb64000-5eb72351bdef3\"",
+      "last-modified": "Thu, 20 Oct 2022 07:23:53 GMT",
+      "name": "virtio-win-0.1.225.iso",
+      "sha256": "1ccmy2s9ziczyivnwkxj80y1hibgb7jjbgbhykbwhcf3cpyn969b",
+      "url": "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.225-1/virtio-win-0.1.225.iso"
     },
     "https://raw.githubusercontent.com/chef/bento/main/packer_templates/windows/answer_files/2019/Autounattend.xml": {
       "etag": "\"e2d01011667189f24314d044e5ebb9c3637bb11f41b5815be07adda2e08981a0\"",
