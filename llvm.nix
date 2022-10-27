@@ -45,7 +45,9 @@ in rec {
     buildLlvmTools = buildTools;
   }).libraries.extend (self: super: {
     enableShared = false;
-    compiler-rt = super.compiler-rt.overrideAttrs (attrs: {
+    compiler-rt = (super.compiler-rt.override {
+      libxcrypt = ""; # hack: disable libxcrypt
+    }).overrideAttrs (attrs: {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
         "-DCOMPILER_RT_BUILD_MEMPROF=OFF" # fails for some reason
         "-DCOMPILER_RT_BUILD_ORC=OFF" # fails for some reason
