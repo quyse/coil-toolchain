@@ -2,10 +2,6 @@
 , pkgs ? pkgsFun {}
 }:
 rec {
-  llvm11 = { ... }@args: import ./llvm.nix ({
-    inherit pkgs utils;
-    llvmVersion = "11";
-  } // args);
   llvm12 = { ... }@args: import ./llvm.nix ({
     inherit pkgs utils;
     llvmVersion = "12";
@@ -71,15 +67,6 @@ rec {
   };
 
   touch = {
-    llvm11LinuxGlibc = mkDummy (llvm11 {
-      pkgs = pkgsLinuxGlibc;
-    });
-    llvm11LinuxMusl = mkDummy (llvm11 {
-      pkgs = pkgsLinuxMusl;
-    });
-    llvm11WindowsMingw = mkDummy (llvm11 {
-      pkgs = pkgsWindowsMingw;
-    });
     llvm12LinuxGlibc = mkDummy (llvm12 {
       pkgs = pkgsLinuxGlibc;
     });
