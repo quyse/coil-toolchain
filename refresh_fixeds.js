@@ -53,7 +53,9 @@ const refreshFetchUrl = async (url, obj) => {
   while(fetching) {
     const response = await new Promise((resolve, reject) => {
       process.stderr.write(`  Fetching ${fetchUrl}...\n`);
-      const headers = {};
+      const headers = {
+        'user-agent': 'refresh_fixeds'
+      };
       if(!obj.ignore_etag && obj.etag) headers['if-none-match'] = obj.etag;
       if(!obj.ignore_last_modified && obj['last-modified']) headers['if-modified-since'] = obj['last-modified'];
       const request = (fetchUrl.startsWith("https://") ? https : http).request(fetchUrl, {
@@ -76,7 +78,7 @@ const refreshFetchUrl = async (url, obj) => {
     case 200:
       process.stderr.write(`  Got 200 OK.\n`);
       fetching = false;
-      record('url', fetchUrl);
+      record('url', obj.forget_redirect ? url : fetchUrl);
       if(!obj.ignore_etag) recordHeader('etag');
       if(!obj.ignore_last_modified) recordHeader('last-modified');
       record('name', /([^/]+)$/.exec(fetchUrl)[1]);
@@ -99,7 +101,7 @@ const refreshFetchUrl = async (url, obj) => {
     case 304:
       process.stderr.write(`  Got 304 Not modified.\n`);
       fetching = false;
-      record('url', fetchUrl);
+      record('url', obj.forget_redirect ? url : fetchUrl);
       if(!obj.ignore_etag) recordHeader('etag');
       if(!obj.ignore_last_modified) recordHeader('last-modified');
       break;
