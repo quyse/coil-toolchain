@@ -1,5 +1,10 @@
 {
   "fetchgit": {
+    "https://github.com/microsoft/msix-packaging.git": {
+      "rev": "744424acc78bb40b36546722aedd726a08a5370b",
+      "sha256": "0lpn4nm6qwhqxkzchdcqkb1xfrmjx28g1llg51h3cwavii5fk4pm",
+      "url": "https://github.com/microsoft/msix-packaging.git"
+    },
     "https://github.com/wheybags/glibc_version_header.git": {
       "rev": "60d54829f34f21dc440126ad5630e6a9789a48b2",
       "sha256": "1zh2zv2z0xaqq27236hrinqdazddvqzg15fsy18pdmk90ifiz20w",

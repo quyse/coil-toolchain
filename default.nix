@@ -106,6 +106,7 @@ rec {
     });
 
     initialDisk = (windows {}).initialDisk {};
+    inherit (windows {}) makemsix;
 
     stuffd = utils.stuffd {
       handlers = [];

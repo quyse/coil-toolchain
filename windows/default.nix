@@ -299,4 +299,35 @@ in rec {
   # convert list of unix-style paths to windows-style PATH var
   # paths must be pre-shell-escaped if needed
   makeWinePaths = paths: lib.concatStringsSep ";" (map (path: "$(winepath -w ${path})") paths);
+
+  makemsix = pkgs.stdenv.mkDerivation rec {
+    name = "makemsix";
+    src = pkgs.fetchgit {
+      inherit (fixeds.fetchgit."https://github.com/microsoft/msix-packaging.git") url rev sha256;
+    };
+    buildInputs = [
+      pkgs.icu
+      pkgs.zlib
+    ];
+    nativeBuildInputs = [
+      pkgs.cmake
+      pkgs.ninja
+      pkgs.clang_14
+    ];
+    cmakeFlags = [
+      "-DCMAKE_CXX_COMPILER=clang++"
+      "-DCMAKE_C_COMPILER=clang"
+      "-DLINUX=ON"
+      "-DMSIX_PACK=ON"
+      "-DUSE_VALIDATION_PARSER=ON"
+      "-DMSIX_SAMPLES=OFF"
+      "-DMSIX_TESTS=OFF"
+    ];
+    installPhase = ''
+      mkdir -p $out/{bin,lib}
+      cp bin/makemsix $out/bin/
+      cp lib/libmsix.so $out/lib/
+      patchelf --set-rpath "${pkgs.lib.makeLibraryPath buildInputs}:$out/lib" $out/bin/*
+    '';
+  };
 }
