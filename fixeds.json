@@ -19,11 +19,11 @@
       "sha256": "1n5cz355amiggynw3f6r9cv6j4nr180nzyrnwmkgplvrxx0nf1la",
       "url": "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.225-2/virtio-win-0.1.225.iso"
     },
-    "https://raw.githubusercontent.com/chef/bento/main/packer_templates/windows/answer_files/2019/Autounattend.xml": {
+    "https://raw.githubusercontent.com/chef/bento/main/packer_templates/win_answer_files/2019/Autounattend.xml": {
       "etag": "\"e2d01011667189f24314d044e5ebb9c3637bb11f41b5815be07adda2e08981a0\"",
       "name": "Autounattend.xml",
       "sha256": "03q6z158qjqjvv6z12h4y79516izq00as7ksbqqk5mxgil69kyk5",
-      "url": "https://raw.githubusercontent.com/chef/bento/main/packer_templates/windows/answer_files/2019/Autounattend.xml"
+      "url": "https://raw.githubusercontent.com/chef/bento/main/packer_templates/win_answer_files/2019/Autounattend.xml"
     },
     "https://software-download.microsoft.com/download/pr/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso": {
       "etag": "\"0xBBA83DF6FF6B9A626FED559BA72634873C8CFC0D7E0D71E26D6EF4694621F27B\"",

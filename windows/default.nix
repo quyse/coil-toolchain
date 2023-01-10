@@ -179,7 +179,7 @@ in rec {
     };
     checksum = "none";
     autounattend = pkgs.fetchurl {
-      inherit (fixeds.fetchurl."https://raw.githubusercontent.com/chef/bento/main/packer_templates/windows/answer_files/${version}/Autounattend.xml") url sha256 name;
+      inherit (fixeds.fetchurl."https://raw.githubusercontent.com/chef/bento/main/packer_templates/win_answer_files/${version}/Autounattend.xml") url sha256 name;
     };
   };
 
