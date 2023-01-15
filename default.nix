@@ -27,10 +27,6 @@ rec {
     inherit pkgs fixeds;
   };
 
-  windows = { ... }@args: import ./windows ({
-    inherit pkgs fixeds;
-  } // args);
-
   fixeds = pkgs.lib.importJSON ./fixeds.json;
 
   pkgsLinuxGlibc = pkgsFun {};
@@ -104,9 +100,6 @@ rec {
     gccWindowsMingw = mkDummy (gcc {
       pkgs = pkgsWindowsMingw;
     });
-
-    initialDisk = (windows {}).initialDisk {};
-    inherit (windows {}) makemsix;
 
     stuffd = utils.stuffd {
       handlers = [];
