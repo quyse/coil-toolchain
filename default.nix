@@ -2,20 +2,12 @@
 , pkgs ? pkgsFun {}
 }:
 rec {
-  llvm12 = { ... }@args: import ./llvm.nix ({
-    inherit pkgs utils;
-    llvmVersion = "12";
-  } // args);
-  llvm13 = { ... }@args: import ./llvm.nix ({
-    inherit pkgs utils;
-    llvmVersion = "13";
-  } // args);
   llvm14 = { ... }@args: import ./llvm.nix ({
     inherit pkgs utils;
     llvmVersion = "14";
   } // args);
 
-  llvm = llvm13;
+  llvm = llvm14;
 
   gcc = { ... }@args: import ./gcc.nix ({
     inherit pkgs utils;
@@ -67,24 +59,6 @@ rec {
   };
 
   touch = {
-    llvm12LinuxGlibc = mkDummy (llvm12 {
-      pkgs = pkgsLinuxGlibc;
-    });
-    llvm12LinuxMusl = mkDummy (llvm12 {
-      pkgs = pkgsLinuxMusl;
-    });
-    llvm12WindowsMingw = mkDummy (llvm12 {
-      pkgs = pkgsWindowsMingw;
-    });
-    llvm13LinuxGlibc = mkDummy (llvm13 {
-      pkgs = pkgsLinuxGlibc;
-    });
-    llvm13LinuxMusl = mkDummy (llvm13 {
-      pkgs = pkgsLinuxMusl;
-    });
-    llvm13WindowsMingw = mkDummy (llvm13 {
-      pkgs = pkgsWindowsMingw;
-    });
     llvm14LinuxGlibc = mkDummy (llvm14 {
       pkgs = pkgsLinuxGlibc;
     });
