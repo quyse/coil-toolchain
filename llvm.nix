@@ -57,24 +57,18 @@ in rec {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
         "-DLIBCXX_HERMETIC_STATIC_LIBRARY=ON"
       ];
-      NIX_CFLAGS_COMPILE = if self.stdenv.hostPlatform.isWindows then "-D_WIN32_WINNT=0x0600" else null;
-      patches = (attrs.patches or []) ++ [
-        (./. + "/libs/libcxx${llvmVersion}/override-glibc-prereq.patch")
-      ];
     });
     libcxxabi = super.libcxxabi.overrideAttrs (attrs: {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
         "-DLIBCXXABI_USE_COMPILER_RT=ON"
         "-DLIBCXXABI_HERMETIC_STATIC_LIBRARY=ON"
       ];
-      NIX_CFLAGS_COMPILE = if self.stdenv.hostPlatform.isWindows then "-D_WIN32_WINNT=0x0600" else null;
     });
     libunwind = super.libunwind.overrideAttrs (attrs: {
       cmakeFlags = (attrs.cmakeFlags or []) ++ [
         "-DLIBUNWIND_USE_COMPILER_RT=ON"
         "-DLIBUNWIND_HERMETIC_STATIC_LIBRARY=ON"
       ];
-      NIX_CFLAGS_COMPILE = if self.stdenv.hostPlatform.isWindows then "-D__STDC_FORMAT_MACROS=1 -D_WIN32_WINNT=0x0600" else null;
     });
   });
 
