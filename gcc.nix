@@ -11,7 +11,6 @@ let
 
 in rec {
   hostStdenv = pkgs.lib.pipe pkgs.gcc11Stdenv [
-    utils.stdenvFunctionSections
     stdenvHostFlags
     utils.stdenvPlatformFixes
     pkgs.stdenvAdapters.propagateBuildInputs
