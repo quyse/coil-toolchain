@@ -25,7 +25,7 @@ const run = async () => {
 };
 
 const refresh = async (fixeds) => {
-  let fetchurlChanged = 0, fetchgitChanged = 0;
+  let fetchurlChanged = 0, fetchgitChanged = 0, fetchreleaseChanged = 0;
 
   // process fetchurl
   {
@@ -43,7 +43,15 @@ const refresh = async (fixeds) => {
         fetchgitChanged++;
   }
 
-  console.log((fetchurlChanged > 0 || fetchgitChanged > 0) ? `CHANGES DETECTED: changed ${fetchurlChanged} URLs, ${fetchgitChanged} Gits` : 'NO CHANGES DETECTED');
+  // process fetchrelease
+  {
+    const urls = Object.keys(fixeds.fetchrelease || {});
+    for(let i = 0; i < urls.length; ++i)
+      if(await tryFewTimes(() => refreshFetchRelease(urls[i], fixeds.fetchrelease[urls[i]])))
+        fetchreleaseChanged++;
+  }
+
+  console.log((fetchurlChanged > 0 || fetchgitChanged > 0 || fetchreleaseChanged > 0) ? `CHANGES DETECTED: changed ${fetchurlChanged} URLs, ${fetchgitChanged} Gits, ${fetchreleaseChanged} releases` : 'NO CHANGES DETECTED');
 };
 
 const refreshFetchUrl = async (url, obj) => {
@@ -202,6 +210,82 @@ const refreshFetchGit = async (url, obj) => {
 
   // unrecognized
   throw 'Git url ${url} is not supported'
+};
+
+const refreshFetchRelease = async (url, obj) => {
+  process.stderr.write(`Refreshing ${url}...\n`);
+  // support only some repos for now
+
+  // github
+  {
+    const a = /^https:\/\/github.com\/([^/]+)\/([^/#]+)(#(.+))?$/.exec(url);
+    if(a) {
+      const owner = a[1];
+      const repo = a[2];
+      const asset_regex = a[4];
+
+      const response = await new Promise((resolve, reject) => {
+        process.stderr.write(`  Checking Github ${owner}/${repo} latest release...\n`);
+        const request = https.request(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
+          headers: {
+            'user-agent': 'refresh_fixeds' // some user agent is required by Github API
+          }
+        }, (response) => {
+          if(response.statusCode != 200) throw('Github API request failed');
+          let data = '';
+          response.on('data', (chunk) => {
+            data += chunk;
+          });
+          response.on('end', () => resolve(JSON.parse(data)));
+        });
+        request.on('error', reject);
+        request.end();
+      });
+
+      let assets = response.assets;
+
+      // filter assets if there's regex
+      if(asset_regex) {
+        const regex = new RegExp(asset_regex);
+        assets = assets.filter(asset => regex.exec(asset.name));
+      }
+
+      // there should be exactly one asset
+      if(assets.length != 1) {
+        throw(`there should be exactly one asset, but found ${assets.length}`);
+      }
+      const asset = assets[0];
+
+      if(obj.asset_id !== asset.id) {
+        obj.asset_id = asset.id;
+        const url = asset.browser_download_url;
+        obj.url = url;
+        obj.name = asset.name;
+        process.stderr.write(`  Release change detected, prefetching...\n`);
+        const hashAlgo = obj.hashAlgo || 'sha256';
+
+        // prefetch
+        obj[hashAlgo] = (await new Promise((resolve, reject) => {
+          const p = child_process.spawn('nix-prefetch-url', ['--name', obj.name, '--type', hashAlgo, url], {
+            stdio: ['ignore', 'pipe', 'inherit']
+          });
+          let hash = '';
+          p.stdout.on('data', (data) => {
+            hash += data;
+          });
+          p.on('close', (code) => code == 0 ? resolve(hash) : reject(code));
+        })).trim();
+        process.stderr.write(`  Updated.\n`);
+        return true;
+      }
+
+      process.stderr.write(`  Up-to-date.\n`);
+      return false;
+    }
+  }
+
+  // unrecognized
+  throw 'Release url ${url} is not supported'
 };
 
 const tryFewTimes = async (action) => {
