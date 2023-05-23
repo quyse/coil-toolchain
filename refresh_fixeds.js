@@ -184,11 +184,15 @@ const refreshFetchGit = async (url, obj) => {
         const hashAlgo = obj.hashAlgo || 'sha256';
         // prefetch
         const result = await new Promise((resolve, reject) => {
-          const p = child_process.spawn('nix-prefetch-git', [
+          const args = [
             '--branch-name', ref,
             '--rev', rev,
             effectiveUrl
-          ], {
+          ];
+          if(obj.fetch_submodules) {
+            args.push('--fetch-submodules');
+          }
+          const p = child_process.spawn('nix-prefetch-git', args, {
             stdio: ['ignore', 'pipe', 'inherit']
           });
           let data = '';
