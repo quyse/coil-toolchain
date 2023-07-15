@@ -17,7 +17,7 @@ in rec {
         '';
       });
       icu = super.icu.override overrides;
-      boost = (super.boost17x.override (overrides // {
+      boost = (super.boost.override (overrides // {
         enableShared = false;
         enableStatic = true;
         inherit expat zlib bzip2 libiconv icu;
