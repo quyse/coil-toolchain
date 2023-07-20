@@ -89,11 +89,11 @@ const refreshFetchUrl = async (url, obj) => {
       record('url', obj.forget_redirect ? url : fetchUrl);
       if(!obj.ignore_etag) recordHeader('etag');
       if(!obj.ignore_last_modified) recordHeader('last-modified');
-      record('name', /([^/]+)$/.exec(fetchUrl)[1]);
+      record('name', sanitizeName(/([^/]+)$/.exec(fetchUrl)[1]));
       if(response.headers['content-disposition']) {
         const a = /^attachment;\s+filename=([^;]+)$/.exec(response.headers['content-disposition']);
         if(a) {
-          record('name', a[1]);
+          record('name', sanitizeName(a[1]));
         }
       }
       changed = true;
@@ -307,5 +307,7 @@ const tryFewTimes = async (action) => {
   }
   throw `error after ${triesCount} tries, giving up`;
 };
+
+const sanitizeName = (name) => decodeURIComponent(name).replaceAll(/[^\w\d+._?=-]/g, '_');
 
 run();
