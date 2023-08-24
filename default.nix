@@ -22,11 +22,6 @@ rec {
   fixeds = pkgs.lib.importJSON ./fixeds.json;
 
   pkgsLinuxGlibc = pkgsFun {};
-  pkgsLinuxMusl = pkgsFun {
-    crossSystem = {
-      config = "x86_64-unknown-linux-musl";
-    };
-  };
   pkgsWindowsMingw = pkgsFun {
     crossSystem = {
       config = "x86_64-w64-mingw32";
@@ -61,9 +56,6 @@ rec {
   touch = {
     llvm14LinuxGlibc = mkDummy (llvm14 {
       pkgs = pkgsLinuxGlibc;
-    });
-    llvm14LinuxMusl = mkDummy (llvm14 {
-      pkgs = pkgsLinuxMusl;
     });
     llvm14WindowsMingw = mkDummy (llvm14 {
       pkgs = pkgsWindowsMingw;
