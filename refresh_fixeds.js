@@ -22,6 +22,9 @@ const run = async () => {
     p.on('close', (code) => code == 0 ? resolve() : reject(code));
   });
   await outFixeds.close();
+  // explicitly destroy HTTP/HTTPS agents, otherwise it hangs for a long time
+  http.globalAgent.destroy();
+  https.globalAgent.destroy();
 };
 
 const refresh = async (fixeds) => {
