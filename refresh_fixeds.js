@@ -158,28 +158,32 @@ const refreshFetchGit = async (url, obj) => {
       const effectiveUrl = a[1];
       const owner = a[2];
       const repo = a[3];
-      const ref = a[5] || 'master';
+      let ref = a[5] || 'master';
 
-      const response = await new Promise((resolve, reject) => {
-        process.stderr.write(`  Checking Github ${owner}/${repo} ${ref}...\n`);
-        const request = https.request(`https://api.github.com/repos/${owner}/${repo}/branches/${ref}`, {
+      process.stderr.write(`  Checking Github ${owner}/${repo} ${ref}...\n`);
+
+      // special case
+      if(ref == '#latest_release') {
+        // get tag name of latest release
+        ref = `tags/${(await (await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
           headers: {
             'user-agent': 'refresh_fixeds' // some user agent is required by Github API
           }
-        }, (response) => {
-          if(response.statusCode != 200) throw('Github API request failed');
-          let data = '';
-          response.on('data', (chunk) => {
-            data += chunk;
-          });
-          response.on('end', () => resolve(JSON.parse(data)));
-        });
-        request.on('error', reject);
-        request.end();
-      });
+        })).json()).tag_name}`;
+      }
+      else {
+        // assume ref is branch
+        ref = `heads/${ref}`;
+      }
 
-      const rev = response.commit.sha;
+      // get up-to-date rev
+      const rev = (await (await fetch(`https://api.github.com/repos/${owner}/${repo}/git/ref/${ref}`, {
+        headers: {
+          'user-agent': 'refresh_fixeds' // some user agent is required by Github API
+        }
+      })).json()).object.sha;
 
+      // update if changed
       if(obj.rev != rev) {
         obj.url = effectiveUrl;
         obj.rev = rev;
