@@ -165,11 +165,13 @@ const refreshFetchGit = async (url, obj) => {
       // special case
       if(ref == '#latest_release') {
         // get tag name of latest release
-        ref = `tags/${(await (await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
+        const tagName = (await (await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
           headers: {
             'user-agent': 'refresh_fixeds' // some user agent is required by Github API
           }
-        })).json()).tag_name}`;
+        })).json()).tag_name;
+        obj.tag = tagName;
+        ref = `tags/${tagName}`;
       }
       else {
         // assume ref is branch
