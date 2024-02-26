@@ -7,10 +7,10 @@ let
   patchMingwLibc = libc: if libc != null && pkgs.lib.hasPrefix "mingw-w64" libc.name
     then let
       mingw_w64 = libc.overrideAttrs (attrs: rec {
-        version = "10.0.0";
+        version = "11.0.0";
         src = pkgs.fetchurl {
           url = "mirror://sourceforge/mingw-w64/mingw-w64-v${version}.tar.bz2";
-          hash = "sha256-umtDCu1yxjo3aFMfaj/8Kw/eLFejslFFDc9ImolPCJQ=";
+          hash = "sha256-vQ6hYzvYMCBMwjppaIkzXp1KMrhhlDnuF/IhiGlfzF8=";
         };
         buildInputs = [mingw_w64_headers];
       });
