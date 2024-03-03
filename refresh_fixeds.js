@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
 const fs = require('fs').promises;
-const http = require('http');
-const https = require('https');
 const child_process = require('child_process');
 
 const run = async () => {
@@ -22,9 +20,6 @@ const run = async () => {
     p.on('close', (code) => code == 0 ? resolve() : reject(code));
   });
   await outFixeds.close();
-  // explicitly destroy HTTP/HTTPS agents, otherwise it hangs for a long time
-  http.globalAgent.destroy();
-  https.globalAgent.destroy();
 };
 
 const refresh = async (fixeds) => {
@@ -62,20 +57,19 @@ const refreshFetchUrl = async (url, obj) => {
   // loop for redirects
   let fetchUrl = url, fetching = true, changed = false;
   while(fetching) {
-    const response = await new Promise((resolve, reject) => {
-      process.stderr.write(`  Fetching ${fetchUrl}...\n`);
-      const headers = {
-        'user-agent': 'refresh_fixeds'
-      };
-      if(!obj.ignore_etag && obj.etag) headers['if-none-match'] = obj.etag;
-      if(!obj.ignore_last_modified && obj['last-modified']) headers['if-modified-since'] = obj['last-modified'];
-      const request = (fetchUrl.startsWith("https://") ? https : http).request(fetchUrl, {
-        method: 'HEAD',
-        headers
-      }, (response) => resolve(response));
-      request.on('error', reject);
-      request.end();
+    process.stderr.write(`  Fetching ${fetchUrl}...\n`);
+    const headers = {
+      'user-agent': 'refresh_fixeds'
+    };
+    if(!obj.ignore_etag && obj.etag) headers['if-none-match'] = obj.etag;
+    if(!obj.ignore_last_modified && obj['last-modified']) headers['if-modified-since'] = obj['last-modified'];
+
+    const response = await fetch(fetchUrl, {
+      method: 'HEAD',
+      headers,
+      redirect: 'manual',
     });
+
     const record = (field, value) => {
       if(obj[field] !== value) {
         obj[field] = value;
@@ -83,9 +77,10 @@ const refreshFetchUrl = async (url, obj) => {
       }
     };
     const recordHeader = (header) => {
-      if(response.headers[header]) record(header, response.headers[header]);
+      const headerValue = response.headers.get(header);
+      if(headerValue != null) record(header, headerValue);
     };
-    switch(response.statusCode) {
+    switch(response.status) {
     case 200:
       process.stderr.write(`  Got 200 OK.\n`);
       fetching = false;
@@ -93,8 +88,8 @@ const refreshFetchUrl = async (url, obj) => {
       if(!obj.ignore_etag) recordHeader('etag');
       if(!obj.ignore_last_modified) recordHeader('last-modified');
       record('name', sanitizeName(/([^/]+)$/.exec(fetchUrl)[1]));
-      if(response.headers['content-disposition']) {
-        const a = /^attachment;\s+filename=([^;]+)$/.exec(response.headers['content-disposition']);
+      if(response.headers.get('content-disposition')) {
+        const a = /^attachment;\s+filename=([^;]+)$/.exec(response.headers.get('content-disposition'));
         if(a) {
           record('name', sanitizeName(a[1]));
         }
@@ -103,11 +98,11 @@ const refreshFetchUrl = async (url, obj) => {
       break;
     case 301:
       process.stderr.write(`  Got 301 Moved permanently.\n`);
-      fetchUrl = response.headers.location;
+      fetchUrl = response.headers.get('location');
       break;
     case 302:
       process.stderr.write(`  Got 302 Found.\n`);
-      fetchUrl = response.headers.location;
+      fetchUrl = response.headers.get('location');
       break;
     case 304:
       process.stderr.write(`  Got 304 Not modified.\n`);
@@ -117,7 +112,7 @@ const refreshFetchUrl = async (url, obj) => {
       if(!obj.ignore_last_modified) recordHeader('last-modified');
       break;
     default:
-      throw `Fetching ${url}: bad status ${response.statusCode}`;
+      throw `Fetching ${url}: bad status ${response.status}`;
     }
   }
 
@@ -237,25 +232,15 @@ const refreshFetchRelease = async (url, obj) => {
       const repo = a[2];
       const asset_regex = a[4];
 
-      const response = await new Promise((resolve, reject) => {
-        process.stderr.write(`  Checking Github ${owner}/${repo} latest release...\n`);
-        const request = https.request(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
-          headers: {
-            'user-agent': 'refresh_fixeds' // some user agent is required by Github API
-          }
-        }, (response) => {
-          if(response.statusCode != 200) throw('Github API request failed');
-          let data = '';
-          response.on('data', (chunk) => {
-            data += chunk;
-          });
-          response.on('end', () => resolve(JSON.parse(data)));
-        });
-        request.on('error', reject);
-        request.end();
+      process.stderr.write(`  Checking Github ${owner}/${repo} latest release...\n`);
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
+        headers: {
+          'user-agent': 'refresh_fixeds' // some user agent is required by Github API
+        }
       });
+      if(response.status != 200) throw('Github API request failed');
 
-      let assets = response.assets;
+      let assets = (await response.json()).assets;
 
       // filter assets if there's regex
       if(asset_regex) {
@@ -302,11 +287,13 @@ const refreshFetchRelease = async (url, obj) => {
 };
 
 const tryFewTimes = async (action) => {
-  const triesCount = 3, pauseSeconds = 10;
+  const triesCount = 6;
+  let pauseSeconds = 1;
   for(let i = 0; i < triesCount; ++i) {
     if(i > 0) {
       console.log(`pausing for ${pauseSeconds} seconds...`);
       await new Promise((resolve) => setTimeout(resolve, pauseSeconds * 1000));
+      pauseSeconds *= 2;
     }
     try {
       return await action();
