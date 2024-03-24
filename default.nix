@@ -54,14 +54,8 @@ rec {
   };
 
   touch = {
-    llvm14LinuxGlibc = mkDummy (llvm14 {
-      pkgs = pkgsLinuxGlibc;
-    });
     llvm14WindowsMingw = mkDummy (llvm14 {
       pkgs = pkgsWindowsMingw;
-    });
-    gccLinuxGlibc = mkDummy (gcc {
-      pkgs = pkgsLinuxGlibc;
     });
     gccWindowsMingw = mkDummy (gcc {
       pkgs = pkgsWindowsMingw;
