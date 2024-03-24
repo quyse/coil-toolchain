@@ -6,7 +6,7 @@ let
 in rec {
   overlay = self: super: {
     # separate to not affect the rest of nixpkgs
-    coil = rec {
+    coil-pkgs = rec {
       expat = super.expat.override overrides;
       zlib = self.callPackage ./libs/zlib-ng overrides;
       bzip2 = super.bzip2.override overrides;
