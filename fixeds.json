@@ -1,9 +1,0 @@
-{
-  "fetchgit": {
-    "https://github.com/wheybags/glibc_version_header.git": {
-      "rev": "60d54829f34f21dc440126ad5630e6a9789a48b2",
-      "sha256": "1zh2zv2z0xaqq27236hrinqdazddvqzg15fsy18pdmk90ifiz20w",
-      "url": "https://github.com/wheybags/glibc_version_header.git"
-    }
-  }
-}

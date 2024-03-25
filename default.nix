@@ -2,24 +2,9 @@
 , pkgs ? pkgsFun {}
 }:
 rec {
-  llvm14 = { ... }@args: import ./llvm.nix ({
-    inherit pkgs utils;
-    llvmVersion = "14";
-  } // args);
-
-  llvm = llvm14;
-
-  gcc = { ... }@args: import ./gcc.nix ({
-    inherit pkgs utils;
-  } // args);
-
-  libs = import ./libs.nix;
-
   utils = import ./utils.nix {
-    inherit pkgs fixeds;
+    inherit pkgs;
   };
-
-  fixeds = pkgs.lib.importJSON ./fixeds.json;
 
   pkgsLinuxGlibc = pkgsFun {};
   pkgsWindowsMingw = pkgsFun {
@@ -43,8 +28,6 @@ rec {
     fi
   '';
 
-  autoUpdateScript = autoUpdateFixedsScript ./fixeds.json;
-
   mkDummy = pkgs: pkgs.stdenv.mkDerivation {
     name = "dummy";
     phases = ["buildPhase"];
@@ -54,18 +37,11 @@ rec {
   };
 
   touch = {
-    llvm14WindowsMingw = mkDummy (llvm14 {
-      pkgs = pkgsWindowsMingw;
-    });
-    gccWindowsMingw = mkDummy (gcc {
-      pkgs = pkgsWindowsMingw;
-    });
-
     stuffd = utils.stuffd {
       handlers = [];
     };
 
-    inherit refreshFixedsScript autoUpdateScript;
+    inherit refreshFixedsScript;
   };
 
   path = ./.;

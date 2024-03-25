@@ -1,25 +1,7 @@
 { pkgs
 , lib ? pkgs.lib
-, fixeds
 }:
 rec {
-  stdenvPlatformFixes = overrideMkDerivation (stdenv: args: {
-    hardeningDisable = if stdenv.hostPlatform.isWindows then ["all"] else args.hardeningDisable or [];
-  } // (if stdenv.hostPlatform.isWindows && stdenv.hostPlatform.useLLVM or false then {
-    RC = "${stdenv.cc.bintools.targetPrefix}llvm-rc";
-  } else {}));
-
-  unNixElf = {
-    x86_64 = "patchelf --remove-rpath --set-interpreter /lib64/ld-linux-x86-64.so.2";
-  };
-
-  overrideMkDerivation = f: stdenv:
-    stdenv.overrideDerivation (s: s // {
-      mkDerivation = fnOrArgs: if builtins.isFunction fnOrArgs
-        then s.mkDerivation (self: let args = fnOrArgs self; in args // f s args)
-        else s.mkDerivation (fnOrArgs // f s fnOrArgs);
-    });
-
   fetchGitLfs =
     { repoUrl
     , ref ? null
