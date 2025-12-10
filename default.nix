@@ -1,5 +1,4 @@
-{ pkgsFun ? import <nixpkgs>
-, pkgs ? pkgsFun {}
+{ pkgs ? import <nixpkgs> {}
 }:
 rec {
   utils = import ./utils.nix {
