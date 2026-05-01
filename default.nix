@@ -5,6 +5,10 @@ rec {
     inherit pkgs;
   };
 
+  js = import ./js.nix {
+    inherit pkgs;
+  };
+
   refreshFixedsScript = pkgs.writeScript "refresh_fixeds" ''
     PATH=${pkgs.jq}/bin:${pkgs.nix}/bin:${pkgs.nix-prefetch-git}/bin:${pkgs.nodejs}/bin NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt node ${./refresh_fixeds.js}
   '';
