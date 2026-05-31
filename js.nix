@@ -11,7 +11,7 @@ rec {
     nodejs = pkgs.nodejs.overrideAttrs (old: {
       passthru = (old.passthru or {}) // {
         pkgs = ((old.passthru or {}).pkgs or {}) // {
-          pnpm = pkgs.pnpm;
+          pnpm = pkgs.pnpm_10;
         };
       };
     });
